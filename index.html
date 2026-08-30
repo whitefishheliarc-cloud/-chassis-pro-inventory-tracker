@@ -19,6 +19,8 @@ html,body{margin:0;background:#050506;font-family:Arial,Helvetica,sans-serif;col
 #coldPsi{left:2.8%;top:61.3%;width:13%;height:5.8%;font-size:2.3vw;text-align:center}#coldCirc{left:16.9%;top:61.3%;width:13.5%;height:5.8%;font-size:2.1vw;text-align:center}#hotPsi{left:31.6%;top:61.3%;width:12.4%;height:5.8%;font-size:2.3vw;text-align:center}#hotCirc{left:44.5%;top:61.3%;width:13.3%;height:5.8%;font-size:2.1vw;text-align:center}#psiChange{left:13%;top:73.4%;width:6.7%;height:4.6%;display:flex;align-items:center;justify-content:center;font-size:2.4vw;font-weight:900}#circChange{left:40.8%;top:73.4%;width:7.4%;height:4.6%;display:flex;align-items:center;justify-content:center;font-size:2.4vw;font-weight:900}
 #status{left:62.9%;top:21.8%;width:33%;height:6.6%;font-size:2.1vw;font-weight:900;padding:0 1.3%;color:#39c44a}#notes{left:62.6%;top:75.5%;width:34.1%;height:13.8%;font-size:1.3vw;padding:1%;resize:none;background:rgba(26,26,30,.98);border:0;color:white}#save{left:2.7%;top:81.3%;width:55.2%;height:7%;background:linear-gradient(90deg,#4d127a,#7226aa);border:0;color:white;font-size:2vw;font-weight:900;border-radius:.65vw}#scan{left:80%;top:5.6%;width:17%;height:7.5%;background:rgba(8,8,10,.96);border:.15vw solid #6d2aa8;color:white;font-size:1.6vw;font-weight:900;border-radius:.6vw}.click{cursor:pointer}
 #syncBadge{position:absolute;z-index:4;right:2%;top:14%;font-size:.85vw;background:#151519cc;border:1px solid #444;border-radius:99px;padding:.5% .8%;color:#8df59a}.modal{position:fixed;inset:0;background:#000;z-index:99;display:none;flex-direction:column}.modal.open{display:flex}.scanTop{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;background:#050506}.scanTitle{font-size:22px;font-weight:900}.close{background:#222;border:1px solid #555;color:white;border-radius:10px;padding:12px 16px;font-weight:800}.cameraWrap{position:relative;flex:1;overflow:hidden;background:#000}.cameraWrap video{width:100%;height:100%;object-fit:cover}.target{position:absolute;left:8%;right:8%;top:36%;height:25%;border:3px solid #9b4be0;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.28);overflow:hidden}.scanLine{position:absolute;left:4%;right:4%;height:3px;top:50%;background:#d9a7ff;box-shadow:0 0 12px #a53cf0;animation:sweep 1.4s ease-in-out infinite alternate}@keyframes sweep{from{transform:translateY(-60px)}to{transform:translateY(60px)}}.scanHint{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-size:18px;font-weight:800;text-shadow:0 2px 4px #000}.scanStatus{position:absolute;left:4%;right:4%;bottom:2.5%;text-align:center;font-size:13px;font-weight:800;color:#fff;background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:7px 8px;text-shadow:0 2px 4px #000}.resultFlash{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(57,196,74,.28);font-size:34px;font-weight:900}.ocrBadge{position:absolute;left:4%;top:2.5%;background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.24);border-radius:8px;padding:7px 9px;font-size:12px;font-weight:900}.confirmCard{position:absolute;z-index:10;left:6%;right:6%;top:24%;display:none;background:#0d0d10;border:2px solid #9b4be0;border-radius:16px;padding:18px;box-shadow:0 12px 40px #000}.confirmCard.show{display:block}.confirmTitle{font-size:16px;font-weight:900;margin-bottom:8px}.confirmText{font-size:13px;color:#bbb;margin-bottom:12px}.confirmInput{box-sizing:border-box;width:100%;font-size:32px;font-weight:900;letter-spacing:.08em;padding:12px;border-radius:10px;border:0;background:#f4f4f6;color:#111}.confirmBtns{display:flex;gap:10px;margin-top:12px}.confirmBtns button{flex:1;padding:13px 10px;border-radius:10px;border:0;font-weight:900;font-size:15px}.confirmUse{background:#7628b3;color:white}.confirmAgain{background:#2a2a2f;color:white;border:1px solid #555!important}.manualBar{display:flex;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom) + 14px);background:#09090b}.manualBar input{flex:1;font-size:22px;padding:14px;border-radius:10px;border:1px solid #555}.manualBar button{font-size:18px;padding:14px 18px;background:#6d2aa8;border:0;color:#fff;border-radius:10px;font-weight:900}.toast{position:fixed;right:18px;bottom:18px;background:#141418;color:#fff;border:1px solid #555;padding:12px 16px;border-radius:8px;font-weight:700;display:none;z-index:120}
+
+.frozenPreview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:1}.frozenPreview.show{display:block}.captureBar{position:absolute;z-index:12;left:6%;right:6%;bottom:8%;display:flex;gap:10px}.captureBtn{flex:1;padding:16px 14px;border:0;border-radius:12px;background:#7628b3;color:#fff;font-size:18px;font-weight:900;box-shadow:0 8px 24px #0008}.captureBtn:disabled{opacity:.5}.retakeBtn{display:none;padding:16px 14px;border-radius:12px;border:1px solid #666;background:#242429;color:#fff;font-size:16px;font-weight:900}.retakeBtn.show{display:block}.captureHelp{position:absolute;z-index:11;left:5%;right:5%;bottom:17%;text-align:center;font-size:15px;font-weight:800;text-shadow:0 2px 5px #000}.scanLine.paused{display:none}
 @media(max-width:900px){#barcode{font-size:5.5vw}#newDate,#recentDate,#compound,#corner,#status,#notes,#scan{font-size:2.5vw}#coldPsi,#coldCirc,#hotPsi,#hotCirc,#lapsVal,#lapTotal,#heatCycles,#psiChange,#circChange{font-size:3.6vw}#save{font-size:3vw}#syncBadge{font-size:1.8vw}}
 </style>
 </head>
@@ -31,7 +33,8 @@ html,body{margin:0;background:#050506;font-family:Arial,Helvetica,sans-serif;col
 <input id="coldPsi" class="overlay light" inputmode="numeric"><input id="coldCirc" class="overlay light" placeholder="85 7/16"><input id="hotPsi" class="overlay light" inputmode="numeric"><input id="hotCirc" class="overlay light" placeholder="86 1/16"><div id="psiChange" class="overlay"></div><div id="circChange" class="overlay"></div>
 <select id="status" class="overlay dark"><option>ACTIVE</option><option>INACTIVE</option><option>OUT OF INVENTORY</option></select><textarea id="notes" class="overlay" placeholder="Add notes about this tire..."></textarea><button id="save" class="overlay click">▣ &nbsp; SAVE TIRE RECORD</button>
 </div></div>
-<div id="scanner" class="modal"><div class="scanTop"><div class="scanTitle">HOOSIER BARCODE SCANNER</div><button id="closeScan" class="close">CANCEL</button></div><div class="cameraWrap"><video id="video" muted playsinline></video><div id="target" class="target"><div class="scanLine"></div></div><div id="ocrBadge" class="ocrBadge">BARCODE + PRINTED NUMBER</div><div class="scanHint">Center the barcode and printed number inside the purple box</div><div id="scanStatus" class="scanStatus">ENGINE CHECK…</div><canvas id="scanCanvas" hidden></canvas><div id="confirmCard" class="confirmCard"><div class="confirmTitle">NUMBER FOUND</div><div id="confirmText" class="confirmText">Printed number read from the tire. Confirm it before using.</div><input id="confirmInput" class="confirmInput" inputmode="numeric"><div class="confirmBtns"><button id="confirmAgain" class="confirmAgain">KEEP SCANNING</button><button id="confirmUse" class="confirmUse">USE NUMBER</button></div></div><div id="flash" class="resultFlash"></div></div><div class="manualBar"><input id="manualCode" inputmode="numeric" placeholder="Manual barcode entry"><button id="manualUse">USE</button></div></div><div id="toast" class="toast"></div>
+<div id="scanner" class="modal"><div class="scanTop"><div class="scanTitle">HOOSIER BARCODE SCANNER</div><button id="closeScan" class="close">CANCEL</button></div><div class="cameraWrap"><video id="video" muted playsinline></video><img id="frozenPreview" class="frozenPreview" alt="Captured tire label"><div id="target" class="target"><div id="scanLine" class="scanLine"></div></div><div id="ocrBadge" class="ocrBadge">V6 • CAPTURE + READ</div><div id="scanHint" class="scanHint">Center the barcode and printed number inside the purple box</div><div id="captureHelp" class="captureHelp">Hold steady, then tap CAPTURE &amp; READ</div><div id="scanStatus" class="scanStatus">CAMERA READY</div><canvas id="scanCanvas" hidden></canvas><div id="captureBar" class="captureBar"><button id="retakeBtn" class="retakeBtn">RETAKE</button><button id="captureBtn" class="captureBtn">📸 CAPTURE &amp; READ</button></div><div id="confirmCard" class="confirmCard"><div class="confirmTitle">NUMBER FOUND</div><div id="confirmText" class="confirmText">Number read from the captured tire label. Check it before using.</div><input id="confirmInput" class="confirmInput" inputmode="numeric"><div class="confirmBtns"><button id="confirmAgain" class="confirmAgain">RETAKE</button><button id="confirmUse" class="confirmUse">USE NUMBER</button></div></div><div id="flash" class="resultFlash"></div></div><div class="manualBar"><input id="manualCode" inputmode="numeric" placeholder="Manual barcode entry"><button id="manualUse">USE</button></div></div>
+<div id="toast" class="toast"></div>
 <script>
 const $=id=>document.getElementById(id);const today=()=>new Date().toLocaleDateString('en-US',{year:'numeric',month:'2-digit',day:'2-digit'});let laps=0,lapTotal=0,heatCycles=0,scanControls=null,lastCandidate='',sameCount=0;
 function parseFrac(s){s=String(s).trim();if(!s)return NaN;const p=s.split(/\s+/);if(p.length===1&&p[0].includes('/')){const[a,b]=p[0].split('/').map(Number);return a/b}let w=parseFloat(p[0]),f=0;if(p[1]&&p[1].includes('/')){const[a,b]=p[1].split('/').map(Number);f=a/b}return w+f}
@@ -41,157 +44,103 @@ function updateDelta(){const p=Number($('hotPsi').value)-Number($('coldPsi').val
 function key(code=$('barcode').value){return'chassispro:'+code}function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
 function loadRecord(code){$('barcode').value=code;const raw=localStorage.getItem(key(code));if(raw){const r=JSON.parse(raw);$('newDate').value=r.newDate;$('recentDate').value=r.recentDate;$('compound').value=r.compound;$('corner').value=r.corner;lapTotal=r.lapTotal||0;heatCycles=r.heatCycles||0;$('lapTotal').textContent=lapTotal;$('heatCycles').textContent=heatCycles;$('status').value=r.status||'ACTIVE';$('notes').value=r.notes||'';toast('Existing tire loaded')}else{$('newDate').value=today();$('recentDate').value=today();lapTotal=0;heatCycles=0;$('lapTotal').textContent=0;$('heatCycles').textContent=0;$('notes').value='';toast('New tire created')}laps=0;$('lapsVal').textContent=0}
 $('barcode').addEventListener('change',()=>{if($('barcode').value.trim())loadRecord($('barcode').value.trim())});
-let cameraStream=null,reader=null,roiTimer=null,roiBusy=false,accepted=false,decoderControls=null;
+let cameraStream=null,reader=null,accepted=false,capturedFull=null,capturedCrop=null,analyzing=false;
 let frameCount=0,zxingHits=0,quaggaHits=0,ocrHits=0,lastFormat='';
-let ocrTimer=null,ocrBusy=false,lastOcrTry=0,ocrCandidate='',ocrWorkerReady=false;
 function setScanStatus(m){$('scanStatus').textContent=m}
-function candidateText(result){return (result&&result.getText?result.getText():String((result&&result.text)||'')).trim()}
 function cleanDigits(text){return String(text||'').replace(/\D/g,'')}
+function candidateText(result){return (result&&result.getText?result.getText():String((result&&result.text)||'')).trim()}
 function updateDebug(extra=''){
   const engines=(window.ZXingBrowser?'ZXING✓':'ZXING×')+'  '+(window.Quagga?'QUAGGA✓':'QUAGGA×')+'  '+(window.Tesseract?'OCR✓':'OCR×');
-  setScanStatus(`${engines}  FRAMES:${frameCount}  BAR:${zxingHits+quaggaHits} OCR:${ocrHits}${lastFormat?'  '+lastFormat:''}${extra?'  '+extra:''}`)
-}
-function handleCandidate(text,source='ZXING',format=''){
-  if(accepted)return;
-  const raw=String(text||'').trim(), digits=cleanDigits(raw);
-  if(!/^[0-9]{6,12}$/.test(digits))return;
-  if(source==='QUAGGA')quaggaHits++;else zxingHits++;
-  lastCandidate=digits;lastFormat=(source+(format?'/'+format:''));
-  updateDebug('READ '+digits);
-  // v4 test mode: accept the first clean numeric decode so we can prove the Hoosier symbology.
-  accepted=true;acceptScan(digits)
+  setScanStatus(`${engines}${extra?'  '+extra:''}`)
 }
 async function tuneCamera(){
   try{
     const track=cameraStream&&cameraStream.getVideoTracks()[0]; if(!track)return;
-    const caps=track.getCapabilities?track.getCapabilities():{};
-    const advanced={};
+    const caps=track.getCapabilities?track.getCapabilities():{}; const advanced={};
     if(caps.focusMode&&caps.focusMode.includes('continuous'))advanced.focusMode='continuous';
     if(caps.exposureMode&&caps.exposureMode.includes('continuous'))advanced.exposureMode='continuous';
-    if(caps.zoom){const min=Number(caps.zoom.min||1),max=Number(caps.zoom.max||1);advanced.zoom=Math.min(max,Math.max(min,1.45));}
+    if(caps.zoom){const min=Number(caps.zoom.min||1),max=Number(caps.zoom.max||1);advanced.zoom=Math.min(max,Math.max(min,1.25));}
     if(Object.keys(advanced).length)await track.applyConstraints({advanced:[advanced]});
   }catch(e){console.log('camera tuning unavailable',e)}
 }
-function enhanceCanvas(source,contrast=1.8,threshold=null){
-  const out=document.createElement('canvas');out.width=source.width;out.height=source.height;
-  const ctx=out.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);
+function enhanceCanvas(source,contrast=1.8,threshold=null,scale=1){
+  const out=document.createElement('canvas');out.width=Math.max(1,Math.round(source.width*scale));out.height=Math.max(1,Math.round(source.height*scale));
+  const ctx=out.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(source,0,0,out.width,out.height);
   const img=ctx.getImageData(0,0,out.width,out.height),d=img.data;
-  for(let i=0;i<d.length;i+=4){
-    const y=.299*d[i]+.587*d[i+1]+.114*d[i+2];let v=(y-128)*contrast+128;
-    if(threshold!==null)v=v<threshold?0:255;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v;
-  }
+  for(let i=0;i<d.length;i+=4){const y=.299*d[i]+.587*d[i+1]+.114*d[i+2];let v=(y-128)*contrast+128;if(threshold!==null)v=v<threshold?0:255;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v}
   ctx.putImageData(img,0,0);return out
 }
-function getRoiCanvas(){
-  const v=$('video'); if(!v.videoWidth)return null;
-  const c=$('scanCanvas'),ctx=c.getContext('2d',{willReadFrequently:true});
-  const vw=v.videoWidth,vh=v.videoHeight,box=v.getBoundingClientRect();
-  const containerAspect=box.width/box.height,videoAspect=vw/vh;let sx=0,sy=0,sw=vw,sh=vh;
-  if(videoAspect>containerAspect){sw=vh*containerAspect;sx=(vw-sw)/2}else{sh=vw/containerAspect;sy=(vh-sh)/2}
-  // Wider than the purple box so the decoder gets the barcode quiet zones.
-  const cx=sx+sw*.035,cy=sy+sh*.315,cw=sw*.93,ch=sh*.34;
-  c.width=Math.max(960,Math.round(cw));c.height=Math.max(260,Math.round(ch));
-  ctx.drawImage(v,cx,cy,cw,ch,0,0,c.width,c.height);return c
+function captureFullFrame(){
+  const v=$('video'); if(!v.videoWidth||!v.videoHeight)return null;
+  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(v,0,0,c.width,c.height);return c
 }
-function quaggaDecode(canvas,label){
-  return new Promise(resolve=>{
-    if(!window.Quagga){resolve(false);return}
-    try{
-      Quagga.decodeSingle({
-        src:canvas.toDataURL('image/jpeg',.96),locate:true,numOfWorkers:0,
-        inputStream:{size:1600,singleChannel:false},
-        locator:{halfSample:false,patchSize:'small'},
-        decoder:{readers:['code_128_reader','code_39_reader','code_39_vin_reader','code_93_reader','codabar_reader','i2of5_reader','2of5_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader'],multiple:false}
-      },result=>{
-        const code=result&&result.codeResult&&result.codeResult.code;
-        const fmt=result&&result.codeResult&&result.codeResult.format;
-        if(code){handleCandidate(code,'QUAGGA',fmt||label);resolve(true)}else resolve(false)
-      })
-    }catch(e){console.log('quagga error',e);resolve(false)}
-  })
+function cropTargetFromFull(full){
+  const v=$('video'),t=$('target');const vr=v.getBoundingClientRect(),tr=t.getBoundingClientRect();
+  const vw=full.width,vh=full.height,scale=Math.max(vr.width/vw,vr.height/vh);const dw=vw*scale,dh=vh*scale;const ox=(vr.width-dw)/2,oy=(vr.height-dh)/2;
+  let sx=(tr.left-vr.left-ox)/scale,sy=(tr.top-vr.top-oy)/scale,sw=tr.width/scale,sh=tr.height/scale;
+  sx=Math.max(0,sx);sy=Math.max(0,sy);sw=Math.min(vw-sx,sw);sh=Math.min(vh-sy,sh);
+  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(sw));c.height=Math.max(1,Math.round(sh));c.getContext('2d',{willReadFrequently:true}).drawImage(full,sx,sy,sw,sh,0,0,c.width,c.height);return c
 }
-async function zxingDecode(canvas,label){
-  if(!reader||typeof reader.decodeFromCanvas!=='function')return false;
-  try{const r=await reader.decodeFromCanvas(canvas);handleCandidate(candidateText(r),'ZXING',label);return true}catch(e){return false}
+function cropBand(source,yFrac,hFrac,padFrac=0){
+  const sy=Math.max(0,Math.round(source.height*yFrac)),sh=Math.min(source.height-sy,Math.round(source.height*hFrac));
+  const px=Math.round(source.width*padFrac),c=document.createElement('canvas');c.width=Math.max(1,source.width-2*px);c.height=Math.max(1,sh);c.getContext('2d',{willReadFrequently:true}).drawImage(source,px,sy,c.width,sh,0,0,c.width,c.height);return c
 }
-async function decodeROI(){
-  if(roiBusy||accepted)return;const base=getRoiCanvas();if(!base)return;roiBusy=true;frameCount++;updateDebug();
-  try{
-    // Decode the raw crop, two contrast versions, and two binary thresholds.
-    const variants=[['RAW',base],['CONTRAST',enhanceCanvas(base,2.0,null)],['BINARY120',enhanceCanvas(base,1.55,120)],['BINARY155',enhanceCanvas(base,1.55,155)]];
-    for(const [label,canvas] of variants){
-      if(accepted)break;
-      if(await zxingDecode(canvas,label))break;
-      if(await quaggaDecode(canvas,label))break;
-    }
-    // Curved tire labels can bend the bars. Also try a thinner center band where the bars are straighter.
-    if(!accepted){
-      const band=document.createElement('canvas'),bctx=band.getContext('2d');band.width=base.width;band.height=Math.round(base.height*.56);
-      bctx.drawImage(base,0,Math.round(base.height*.22),base.width,band.height,0,0,band.width,band.height);
-      await zxingDecode(band,'CENTER');if(!accepted)await quaggaDecode(band,'CENTER');
-    }
-  }finally{roiBusy=false}
+function freezePreview(full){$('frozenPreview').src=full.toDataURL('image/jpeg',.94);$('frozenPreview').classList.add('show');$('scanLine').classList.add('paused');$('captureHelp').textContent='Captured image — analyzing the label';$('retakeBtn').classList.add('show')}
+function unfreezePreview(){$('frozenPreview').classList.remove('show');$('frozenPreview').removeAttribute('src');$('scanLine').classList.remove('paused');$('captureHelp').textContent='Hold steady, then tap CAPTURE & READ';$('retakeBtn').classList.remove('show');$('confirmCard').classList.remove('show');$('captureBtn').disabled=false;analyzing=false;accepted=false;capturedFull=null;capturedCrop=null;updateDebug('READY')}
+async function zxingRead(canvas){
+  if(!window.ZXingBrowser)return null;try{if(!reader)reader=new ZXingBrowser.BrowserMultiFormatReader();const r=await reader.decodeFromCanvas(canvas);const raw=candidateText(r),digits=cleanDigits(raw);if(/^\d{6,12}$/.test(digits)){zxingHits++;return {code:digits,source:'BARCODE / ZXING'}}}catch(e){}return null
 }
-function getNumberBandCanvas(){
-  const base=getRoiCanvas();if(!base)return null;
-  // Printed digits sit in the lower-middle of the Hoosier label. Crop broadly enough for imperfect aiming.
-  const band=document.createElement('canvas'),ctx=band.getContext('2d',{willReadFrequently:true});
-  const sy=Math.round(base.height*.43),sh=Math.round(base.height*.48);
-  band.width=Math.max(1200,base.width*2);band.height=Math.max(220,sh*2);
-  ctx.drawImage(base,0,sy,base.width,sh,0,0,band.width,band.height);
-  const img=ctx.getImageData(0,0,band.width,band.height),d=img.data;
-  for(let i=0;i<d.length;i+=4){const y=.299*d[i]+.587*d[i+1]+.114*d[i+2];let v=(y-128)*2.35+128;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v}
-  ctx.putImageData(img,0,0);return band
-}
+function quaggaRead(canvas){return new Promise(resolve=>{if(!window.Quagga){resolve(null);return}try{Quagga.decodeSingle({src:canvas.toDataURL('image/jpeg',.97),locate:true,numOfWorkers:0,inputStream:{size:1800,singleChannel:false},locator:{halfSample:false,patchSize:'small'},decoder:{readers:['code_128_reader','code_39_reader','code_39_vin_reader','code_93_reader','codabar_reader','i2of5_reader','2of5_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader'],multiple:false}},r=>{const raw=r&&r.codeResult&&r.codeResult.code,digits=cleanDigits(raw);if(/^\d{6,12}$/.test(digits)){quaggaHits++;resolve({code:digits,source:'BARCODE / QUAGGA'})}else resolve(null)})}catch(e){resolve(null)}})}
 function normalizeOcrText(text){
-  let t=String(text||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/[S]/g,'5').replace(/[B]/g,'8');
-  const groups=t.match(/\d{6,12}/g)||[];return groups.sort((a,b)=>b.length-a.length)[0]||''
+  let t=String(text||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/S/g,'5').replace(/B/g,'8');
+  const groups=t.match(/\d{6,12}/g)||[];return groups.sort((a,b)=>Math.abs(a.length-8)-Math.abs(b.length-8)||b.length-a.length)[0]||''
 }
-function showOcrConfirm(code,confidence){
-  if(accepted)return;accepted=true;ocrHits++;ocrCandidate=code;lastFormat='OCR';
-  $('confirmInput').value=code;$('confirmText').textContent=`Printed number read from the tire${confidence?` (${Math.round(confidence)}% confidence)`:''}. Check it against the label, then tap USE NUMBER.`;
-  $('confirmCard').classList.add('show');updateDebug('FOUND '+code)
+async function ocrRead(canvas,label,step,total){
+  setScanStatus(`ANALYZING CAPTURE ${step}/${total} — ${label}`);
+  try{const r=await Tesseract.recognize(canvas,'eng',{tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});const text=r&&r.data&&r.data.text||'',confidence=r&&r.data&&r.data.confidence||0,code=normalizeOcrText(text);if(/^\d{6,12}$/.test(code)){ocrHits++;return {code,confidence,label}}}catch(e){console.log('ocr',label,e)}return null
 }
-async function tryOCR(){
-  if(ocrBusy||accepted||!window.Tesseract||!$('scanner').classList.contains('open'))return;
-  const now=Date.now();if(now-lastOcrTry<2200)return;lastOcrTry=now;const band=getNumberBandCanvas();if(!band)return;
-  ocrBusy=true;updateDebug('READING PRINTED #');
+function chooseConsensus(results){
+  const valid=results.filter(Boolean);if(!valid.length)return null;
+  const exact=new Map();for(const r of valid){const k=r.code;exact.set(k,(exact.get(k)||0)+1)}
+  const exactWinner=[...exact.entries()].sort((a,b)=>b[1]-a[1])[0];if(exactWinner&&exactWinner[1]>=2){const same=valid.filter(r=>r.code===exactWinner[0]);return {code:exactWinner[0],agreement:exactWinner[1],confidence:Math.max(...same.map(x=>x.confidence||0)),source:'OCR consensus'}}
+  const eight=valid.filter(r=>r.code.length===8);if(eight.length>=2){let out='';for(let i=0;i<8;i++){const counts={};for(const r of eight){const d=r.code[i];counts[d]=(counts[d]||0)+1}out+=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0]}return {code:out,agreement:1,confidence:Math.max(...eight.map(x=>x.confidence||0)),source:'OCR digit vote'}}
+  valid.sort((a,b)=>(b.confidence||0)-(a.confidence||0));return {code:valid[0].code,agreement:1,confidence:valid[0].confidence||0,source:'OCR best read'}
+}
+function showConfirm(result){accepted=true;lastFormat=result.source||'READ';$('confirmInput').value=result.code;const conf=result.confidence?` • ${Math.round(result.confidence)}% OCR confidence`:'';const agree=result.agreement>1?` • ${result.agreement} matching reads`:'';$('confirmText').textContent=`Captured image result: ${result.source||'reader'}${agree}${conf}. Check it against the tire, then tap USE NUMBER.`;$('confirmCard').classList.add('show');setScanStatus(`NUMBER FOUND  ${result.code}`)}
+async function analyzeCapture(){
+  if(analyzing||!capturedCrop)return;analyzing=true;$('captureBtn').disabled=true;zxingHits=quaggaHits=ocrHits=0;
   try{
-    const result=await Tesseract.recognize(band,'eng',{logger:m=>{if(m.status==='recognizing text')setScanStatus(`OCR ${Math.round((m.progress||0)*100)}% — hold steady`)}});
-    const text=result&&result.data&&result.data.text||'',confidence=result&&result.data&&result.data.confidence||0;
-    const code=normalizeOcrText(text);
-    if(/^\d{6,12}$/.test(code)){showOcrConfirm(code,confidence)}else updateDebug('NO NUMBER YET');
-  }catch(e){console.log('ocr error',e);updateDebug('OCR RETRYING')}
-  finally{ocrBusy=false}
+    const raw=capturedCrop,contrast=enhanceCanvas(raw,2.0,null,1.6),bin125=enhanceCanvas(raw,1.6,125,1.6),bin155=enhanceCanvas(raw,1.6,155,1.6);
+    setScanStatus('CHECKING BARCODE — captured image');
+    for(const c of [raw,contrast,bin125,bin155]){let b=await zxingRead(c);if(!b)b=await quaggaRead(c);if(b){showConfirm({...b,agreement:1,confidence:0});return}}
+    if(!window.Tesseract){setScanStatus('OCR NOT LOADED — connect to internet and RETAKE');return}
+    const lower=cropBand(raw,.38,.58,.01),digitsBand=cropBand(raw,.50,.47,.05);
+    const variants=[
+      ['label',enhanceCanvas(raw,1.8,null,2.0)],
+      ['lower label',enhanceCanvas(lower,2.1,null,2.5)],
+      ['digits',enhanceCanvas(digitsBand,2.25,null,3.0)],
+      ['digits B/W 115',enhanceCanvas(digitsBand,1.55,115,3.0)],
+      ['digits B/W 135',enhanceCanvas(digitsBand,1.55,135,3.0)],
+      ['digits B/W 155',enhanceCanvas(digitsBand,1.55,155,3.0)],
+      ['lower B/W 135',enhanceCanvas(lower,1.55,135,2.5)],
+      ['lower B/W 165',enhanceCanvas(lower,1.55,165,2.5)]
+    ];
+    const results=[];for(let i=0;i<variants.length;i++){const [label,c]=variants[i];const r=await ocrRead(c,label,i+1,variants.length);if(r)results.push(r)}
+    const chosen=chooseConsensus(results);if(chosen)showConfirm(chosen);else{setScanStatus('NO STABLE NUMBER — RETAKE CLOSER');$('captureHelp').textContent='Move closer, keep the printed number level, then tap RETAKE'}
+  }finally{analyzing=false;$('captureBtn').disabled=false}
+}
+async function captureAndRead(){
+  if(analyzing)return;const full=captureFullFrame();if(!full){toast('Camera is not ready yet');return}capturedFull=full;capturedCrop=cropTargetFromFull(full);frameCount++;freezePreview(full);await analyzeCapture()
 }
 async function openScanner(){
   if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Camera requires HTTPS hosting');return}
   if(!window.ZXingBrowser&&!window.Quagga&&!window.Tesseract){toast('Scanner engines not loaded — connect to internet once');return}
-  $('scanner').classList.add('open');lastCandidate='';sameCount=0;accepted=false;frameCount=0;zxingHits=0;quaggaHits=0;ocrHits=0;lastFormat='';$('confirmCard').classList.remove('show');updateDebug('STARTING CAMERA');
-  try{
-    cameraStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:3840,min:1280},height:{ideal:2160,min:720}}});
-    $('video').srcObject=cameraStream;await $('video').play();await tuneCamera();
-    if(window.ZXingBrowser){
-      reader=new ZXingBrowser.BrowserMultiFormatReader();
-      try{decoderControls=await reader.decodeFromVideoElement($('video'),result=>{if(result)handleCandidate(candidateText(result),'ZXING','FULL')})}catch(e){console.log('full frame decoder unavailable',e)}
-    }
-    updateDebug('SCANNING');
-    roiTimer=setInterval(decodeROI,320);ocrTimer=setInterval(tryOCR,900);setTimeout(tryOCR,1200);
-  }catch(e){console.error(e);toast('Camera unavailable. Check Safari camera permission.');closeScanner()}
+  $('scanner').classList.add('open');accepted=false;analyzing=false;capturedFull=capturedCrop=null;$('confirmCard').classList.remove('show');unfreezePreview();updateDebug('STARTING CAMERA');
+  try{cameraStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:3840,min:1280},height:{ideal:2160,min:720}}});$('video').srcObject=cameraStream;await $('video').play();await tuneCamera();const v=$('video');setScanStatus(`CAMERA ${v.videoWidth}×${v.videoHeight} — READY TO CAPTURE`)}catch(e){console.error(e);toast('Camera unavailable. Check Safari camera permission.');closeScanner()}
 }
-function closeScanner(){
-  try{if(decoderControls)decoderControls.stop()}catch(e){}decoderControls=null;
-  try{if(roiTimer)clearInterval(roiTimer)}catch(e){}roiTimer=null;try{if(ocrTimer)clearInterval(ocrTimer)}catch(e){}ocrTimer=null;
-  try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop())}catch(e){}cameraStream=null;
-  try{$('video').srcObject=null}catch(e){}reader=null;roiBusy=false;ocrBusy=false;$('confirmCard').classList.remove('show');$('scanner').classList.remove('open')
-}
-function acceptScan(code){
-  if(!accepted)accepted=true;
-  $('flash').textContent='✓ SCAN COMPLETE\n'+code;$('flash').style.whiteSpace='pre-line';$('flash').style.display='flex';
-  if(navigator.vibrate)navigator.vibrate([80,40,120]);
-  setTimeout(()=>{$('flash').style.display='none';closeScanner();loadRecord(code)},650)
-}
-$('confirmUse').onclick=()=>{const c=cleanDigits($('confirmInput').value);if(/^\d{6,12}$/.test(c)){accepted=true;$('confirmCard').classList.remove('show');acceptScan(c)}else toast('Check the tire number')};$('confirmAgain').onclick=()=>{accepted=false;ocrCandidate='';$('confirmCard').classList.remove('show');updateDebug('SCANNING');setTimeout(tryOCR,450)};
+function closeScanner(){try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop())}catch(e){}cameraStream=null;try{$('video').srcObject=null}catch(e){}reader=null;accepted=false;analyzing=false;capturedFull=capturedCrop=null;$('confirmCard').classList.remove('show');$('frozenPreview').classList.remove('show');$('scanner').classList.remove('open')}
+function acceptScan(code){accepted=true;$('flash').textContent='✓ SCAN COMPLETE\n'+code;$('flash').style.whiteSpace='pre-line';$('flash').style.display='flex';if(navigator.vibrate)navigator.vibrate([80,40,120]);setTimeout(()=>{$('flash').style.display='none';closeScanner();loadRecord(code)},650)}
+$('captureBtn').onclick=captureAndRead;$('retakeBtn').onclick=unfreezePreview;$('confirmUse').onclick=()=>{const c=cleanDigits($('confirmInput').value);if(/^\d{6,12}$/.test(c)){$('confirmCard').classList.remove('show');acceptScan(c)}else toast('Check the tire number')};$('confirmAgain').onclick=unfreezePreview;
 $('scan').onclick=openScanner;$('closeScan').onclick=closeScanner;$('manualUse').onclick=()=>{const c=$('manualCode').value.trim();if(/^\d{6,12}$/.test(c))acceptScan(c);else toast('Enter the barcode number')};
 $('save').onclick=()=>{const code=$('barcode').value.trim();if(!code){toast('Scan a tire first');return}const raw=localStorage.getItem(key(code));const old=raw?JSON.parse(raw):{newDate:$('newDate').value||today(),lapTotal:0,heatCycles:0,history:[]};const session={date:today(),laps,coldPsi:$('coldPsi').value,hotPsi:$('hotPsi').value,coldCirc:$('coldCirc').value,hotCirc:$('hotCirc').value,compound:$('compound').value,corner:$('corner').value};const r={newDate:old.newDate,recentDate:today(),compound:$('compound').value,corner:$('corner').value,lapTotal:(old.lapTotal||0)+laps,heatCycles:(old.heatCycles||0)+(laps>0?1:0),status:$('status').value,notes:$('notes').value,history:[session,...(old.history||[])].slice(0,100)};localStorage.setItem(key(code),JSON.stringify(r));lapTotal=r.lapTotal;heatCycles=r.heatCycles;$('lapTotal').textContent=lapTotal;$('heatCycles').textContent=heatCycles;$('recentDate').value=r.recentDate;laps=0;$('lapsVal').textContent=0;toast('Tire saved on this iPad')};
 function updateOnline(){const b=$('syncBadge');b.textContent=navigator.onLine?'● ONLINE / OFFLINE READY':'● OFFLINE — SAVING TO iPAD';b.style.color=navigator.onLine?'#8df59a':'#ffd166'}window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);updateOnline();updateDelta();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(console.error);
