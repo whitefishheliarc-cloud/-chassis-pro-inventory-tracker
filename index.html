@@ -16,7 +16,7 @@ html,body{margin:0;background:#050506;font-family:Arial,Helvetica,sans-serif;col
 #minus{left:12.4%;top:50.1%;width:3.5%;height:4.6%;font-size:2vw}#plus{left:16.7%;top:50.1%;width:3.5%;height:4.6%;font-size:1.9vw}#lapsVal{left:5%;top:49.2%;width:6.8%;height:5.8%;display:flex;align-items:center;justify-content:center;font-size:2.5vw;font-weight:900;color:#111;background:#efeff2;border-radius:.25vw}#lapTotal{left:26.5%;top:49.2%;width:11.3%;height:5.8%;display:flex;align-items:center;justify-content:center;font-size:2.5vw;font-weight:900;color:#111;background:#efeff2;border-radius:.25vw}#heatCycles{left:46.2%;top:49.2%;width:9.2%;height:5.8%;display:flex;align-items:center;justify-content:center;font-size:2.5vw;font-weight:900;color:#111;background:#efeff2;border-radius:.25vw}
 #coldPsi{left:2.8%;top:61.3%;width:13%;height:5.8%;font-size:2.3vw;text-align:center}#coldCirc{left:16.9%;top:61.3%;width:13.5%;height:5.8%;font-size:2.1vw;text-align:center}#hotPsi{left:31.6%;top:61.3%;width:12.4%;height:5.8%;font-size:2.3vw;text-align:center}#hotCirc{left:44.5%;top:61.3%;width:13.3%;height:5.8%;font-size:2.1vw;text-align:center}#psiChange{left:13%;top:73.4%;width:6.7%;height:4.6%;display:flex;align-items:center;justify-content:center;font-size:2.4vw;font-weight:900}#circChange{left:40.8%;top:73.4%;width:7.4%;height:4.6%;display:flex;align-items:center;justify-content:center;font-size:2.4vw;font-weight:900}
 #status{left:62.9%;top:21.8%;width:33%;height:6.6%;font-size:2.1vw;font-weight:900;padding:0 1.3%;color:#39c44a}#notes{left:62.6%;top:75.5%;width:34.1%;height:13.8%;font-size:1.3vw;padding:1%;resize:none;background:rgba(26,26,30,.98);border:0;color:white}#save{left:2.7%;top:81.3%;width:55.2%;height:7%;background:linear-gradient(90deg,#4d127a,#7226aa);border:0;color:white;font-size:2vw;font-weight:900;border-radius:.65vw}#scan{left:80%;top:5.6%;width:17%;height:7.5%;background:rgba(8,8,10,.96);border:.15vw solid #6d2aa8;color:white;font-size:1.6vw;font-weight:900;border-radius:.6vw}.click{cursor:pointer}
-#syncBadge{position:absolute;z-index:4;right:2%;top:14%;font-size:.85vw;background:#151519cc;border:1px solid #444;border-radius:99px;padding:.5% .8%;color:#8df59a}.modal{position:fixed;inset:0;background:#000;z-index:99;display:none;flex-direction:column}.modal.open{display:flex}.scanTop{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;background:#050506}.scanTitle{font-size:22px;font-weight:900}.close{background:#222;border:1px solid #555;color:white;border-radius:10px;padding:12px 16px;font-weight:800}.cameraWrap{position:relative;flex:1;overflow:hidden;background:#000}.cameraWrap video{width:100%;height:100%;object-fit:cover}.target{position:absolute;left:8%;right:8%;top:36%;height:25%;border:3px solid #9b4be0;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.28)}.scanHint{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-size:18px;font-weight:800;text-shadow:0 2px 4px #000}.resultFlash{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(57,196,74,.28);font-size:34px;font-weight:900}.manualBar{display:flex;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom) + 14px);background:#09090b}.manualBar input{flex:1;font-size:22px;padding:14px;border-radius:10px;border:1px solid #555}.manualBar button{font-size:18px;padding:14px 18px;background:#6d2aa8;border:0;color:#fff;border-radius:10px;font-weight:900}.toast{position:fixed;right:18px;bottom:18px;background:#141418;color:#fff;border:1px solid #555;padding:12px 16px;border-radius:8px;font-weight:700;display:none;z-index:120}
+#syncBadge{position:absolute;z-index:4;right:2%;top:14%;font-size:.85vw;background:#151519cc;border:1px solid #444;border-radius:99px;padding:.5% .8%;color:#8df59a}.modal{position:fixed;inset:0;background:#000;z-index:99;display:none;flex-direction:column}.modal.open{display:flex}.scanTop{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;background:#050506}.scanTitle{font-size:22px;font-weight:900}.close{background:#222;border:1px solid #555;color:white;border-radius:10px;padding:12px 16px;font-weight:800}.cameraWrap{position:relative;flex:1;overflow:hidden;background:#000}.cameraWrap video{width:100%;height:100%;object-fit:cover}.target{position:absolute;left:8%;right:8%;top:36%;height:25%;border:3px solid #9b4be0;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.28);overflow:hidden}.scanLine{position:absolute;left:4%;right:4%;height:3px;top:50%;background:#d9a7ff;box-shadow:0 0 12px #a53cf0;animation:sweep 1.4s ease-in-out infinite alternate}@keyframes sweep{from{transform:translateY(-60px)}to{transform:translateY(60px)}}.scanHint{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-size:18px;font-weight:800;text-shadow:0 2px 4px #000}.scanStatus{position:absolute;left:0;right:0;bottom:2.7%;text-align:center;font-size:13px;font-weight:700;color:#d6c5e7;text-shadow:0 2px 4px #000}.resultFlash{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(57,196,74,.28);font-size:34px;font-weight:900}.manualBar{display:flex;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom) + 14px);background:#09090b}.manualBar input{flex:1;font-size:22px;padding:14px;border-radius:10px;border:1px solid #555}.manualBar button{font-size:18px;padding:14px 18px;background:#6d2aa8;border:0;color:#fff;border-radius:10px;font-weight:900}.toast{position:fixed;right:18px;bottom:18px;background:#141418;color:#fff;border:1px solid #555;padding:12px 16px;border-radius:8px;font-weight:700;display:none;z-index:120}
 @media(max-width:900px){#barcode{font-size:5.5vw}#newDate,#recentDate,#compound,#corner,#status,#notes,#scan{font-size:2.5vw}#coldPsi,#coldCirc,#hotPsi,#hotCirc,#lapsVal,#lapTotal,#heatCycles,#psiChange,#circChange{font-size:3.6vw}#save{font-size:3vw}#syncBadge{font-size:1.8vw}}
 </style>
 </head>
@@ -29,7 +29,7 @@ html,body{margin:0;background:#050506;font-family:Arial,Helvetica,sans-serif;col
 <input id="coldPsi" class="overlay light" inputmode="numeric"><input id="coldCirc" class="overlay light" placeholder="85 7/16"><input id="hotPsi" class="overlay light" inputmode="numeric"><input id="hotCirc" class="overlay light" placeholder="86 1/16"><div id="psiChange" class="overlay"></div><div id="circChange" class="overlay"></div>
 <select id="status" class="overlay dark"><option>ACTIVE</option><option>INACTIVE</option><option>OUT OF INVENTORY</option></select><textarea id="notes" class="overlay" placeholder="Add notes about this tire..."></textarea><button id="save" class="overlay click">▣ &nbsp; SAVE TIRE RECORD</button>
 </div></div>
-<div id="scanner" class="modal"><div class="scanTop"><div class="scanTitle">HOOSIER BARCODE SCANNER</div><button id="closeScan" class="close">CANCEL</button></div><div class="cameraWrap"><video id="video" muted playsinline></video><div class="target"></div><div class="scanHint">Center the Hoosier barcode inside the purple box</div><div id="flash" class="resultFlash"></div></div><div class="manualBar"><input id="manualCode" inputmode="numeric" placeholder="Manual barcode entry"><button id="manualUse">USE</button></div></div><div id="toast" class="toast"></div>
+<div id="scanner" class="modal"><div class="scanTop"><div class="scanTitle">HOOSIER BARCODE SCANNER</div><button id="closeScan" class="close">CANCEL</button></div><div class="cameraWrap"><video id="video" muted playsinline></video><div id="target" class="target"><div class="scanLine"></div></div><div class="scanHint">Center the Hoosier barcode inside the purple box</div><div id="scanStatus" class="scanStatus">READY</div><canvas id="scanCanvas" hidden></canvas><div id="flash" class="resultFlash"></div></div><div class="manualBar"><input id="manualCode" inputmode="numeric" placeholder="Manual barcode entry"><button id="manualUse">USE</button></div></div><div id="toast" class="toast"></div>
 <script>
 const $=id=>document.getElementById(id);const today=()=>new Date().toLocaleDateString('en-US',{year:'numeric',month:'2-digit',day:'2-digit'});let laps=0,lapTotal=0,heatCycles=0,scanControls=null,lastCandidate='',sameCount=0;
 function parseFrac(s){s=String(s).trim();if(!s)return NaN;const p=s.split(/\s+/);if(p.length===1&&p[0].includes('/')){const[a,b]=p[0].split('/').map(Number);return a/b}let w=parseFloat(p[0]),f=0;if(p[1]&&p[1].includes('/')){const[a,b]=p[1].split('/').map(Number);f=a/b}return w+f}
@@ -39,9 +39,80 @@ function updateDelta(){const p=Number($('hotPsi').value)-Number($('coldPsi').val
 function key(code=$('barcode').value){return'chassispro:'+code}function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
 function loadRecord(code){$('barcode').value=code;const raw=localStorage.getItem(key(code));if(raw){const r=JSON.parse(raw);$('newDate').value=r.newDate;$('recentDate').value=r.recentDate;$('compound').value=r.compound;$('corner').value=r.corner;lapTotal=r.lapTotal||0;heatCycles=r.heatCycles||0;$('lapTotal').textContent=lapTotal;$('heatCycles').textContent=heatCycles;$('status').value=r.status||'ACTIVE';$('notes').value=r.notes||'';toast('Existing tire loaded')}else{$('newDate').value=today();$('recentDate').value=today();lapTotal=0;heatCycles=0;$('lapTotal').textContent=0;$('heatCycles').textContent=0;$('notes').value='';toast('New tire created')}laps=0;$('lapsVal').textContent=0}
 $('barcode').addEventListener('change',()=>{if($('barcode').value.trim())loadRecord($('barcode').value.trim())});
-async function openScanner(){if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Camera requires HTTPS hosting');return}if(!window.ZXingBrowser){toast('Scanner library not loaded — connect once to internet');return}$('scanner').classList.add('open');lastCandidate='';sameCount=0;try{const Reader=ZXingBrowser.BrowserMultiFormatOneDReader||ZXingBrowser.BrowserMultiFormatReader;const reader=new Reader();scanControls=await reader.decodeFromConstraints({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}},$('video'),(result,err,controls)=>{if(!result)return;const text=(result.getText?result.getText():String(result.text||'')).trim();if(!/^\d{6,12}$/.test(text))return;if(text===lastCandidate)sameCount++;else{lastCandidate=text;sameCount=1}if(sameCount>=2){controls.stop();scanControls=null;acceptScan(text)}})}catch(e){console.error(e);toast('Camera unavailable. Check Safari camera permission.');closeScanner()}}
-function closeScanner(){try{if(scanControls)scanControls.stop()}catch(e){}scanControls=null;$('scanner').classList.remove('open')}
-function acceptScan(code){$('flash').textContent='✓ '+code;$('flash').style.display='flex';if(navigator.vibrate)navigator.vibrate(120);setTimeout(()=>{$('flash').style.display='none';closeScanner();loadRecord(code)},350)}
+let cameraStream=null,reader=null,roiTimer=null,roiBusy=false,accepted=false,decoderControls=null;
+function setScanStatus(m){$('scanStatus').textContent=m}
+function candidateText(result){return (result&&result.getText?result.getText():String((result&&result.text)||'')).trim()}
+function handleCandidate(text){
+  if(accepted||!/^[0-9]{6,12}$/.test(text))return;
+  if(text===lastCandidate)sameCount++;else{lastCandidate=text;sameCount=1}
+  setScanStatus('READING '+text+'  '+sameCount+'/2');
+  if(sameCount>=2){accepted=true;acceptScan(text)}
+}
+async function tuneCamera(){
+  try{
+    const track=cameraStream&&cameraStream.getVideoTracks()[0]; if(!track)return;
+    const caps=track.getCapabilities?track.getCapabilities():{};
+    const advanced={};
+    if(caps.focusMode&&caps.focusMode.includes('continuous'))advanced.focusMode='continuous';
+    if(caps.exposureMode&&caps.exposureMode.includes('continuous'))advanced.exposureMode='continuous';
+    if(caps.zoom){const min=Number(caps.zoom.min||1),max=Number(caps.zoom.max||1);advanced.zoom=Math.min(max,Math.max(min,1.7));}
+    if(Object.keys(advanced).length)await track.applyConstraints({advanced:[advanced]});
+  }catch(e){console.log('camera tuning unavailable',e)}
+}
+function boostCanvas(canvas,amount=1.55){
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height),d=img.data;
+  for(let i=0;i<d.length;i+=4){const y=.299*d[i]+.587*d[i+1]+.114*d[i+2];const v=Math.max(0,Math.min(255,(y-128)*amount+128));d[i]=d[i+1]=d[i+2]=v}
+  ctx.putImageData(img,0,0)
+}
+async function decodeROI(){
+  if(roiBusy||accepted||!reader||!$('video').videoWidth)return; roiBusy=true;
+  try{
+    if(typeof reader.decodeFromCanvas!=='function')return;
+    const v=$('video'),c=$('scanCanvas'),ctx=c.getContext('2d',{willReadFrequently:true});
+    // Purple target is 8%..92% wide and 36%..61% high in the displayed cover-fit video.
+    // Crop the equivalent center region from the source frame, widened slightly for quiet zones.
+    const vw=v.videoWidth,vh=v.videoHeight,box=v.getBoundingClientRect();
+    const containerAspect=box.width/box.height,videoAspect=vw/vh;
+    let sx=0,sy=0,sw=vw,sh=vh;
+    if(videoAspect>containerAspect){sw=vh*containerAspect;sx=(vw-sw)/2}else{sh=vw/containerAspect;sy=(vh-sh)/2}
+    let cx=sx+sw*.055, cy=sy+sh*.33, cw=sw*.89, ch=sh*.31;
+    c.width=Math.max(640,Math.round(cw)); c.height=Math.max(180,Math.round(ch));
+    ctx.drawImage(v,cx,cy,cw,ch,0,0,c.width,c.height);
+    try{const r=await reader.decodeFromCanvas(c);handleCandidate(candidateText(r));return}catch(e){}
+    boostCanvas(c,1.8);
+    try{const r=await reader.decodeFromCanvas(c);handleCandidate(candidateText(r))}catch(e){}
+  }finally{roiBusy=false}
+}
+async function openScanner(){
+  if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Camera requires HTTPS hosting');return}
+  if(!window.ZXingBrowser){toast('Scanner library not loaded — connect once to internet');return}
+  $('scanner').classList.add('open');lastCandidate='';sameCount=0;accepted=false;setScanStatus('STARTING CAMERA…');
+  try{
+    cameraStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:3840,min:1280},height:{ideal:2160,min:720}}});
+    $('video').srcObject=cameraStream;await $('video').play();await tuneCamera();
+    reader=new ZXingBrowser.BrowserMultiFormatReader();
+    setScanStatus('SCANNING — HOLD STEADY');
+    // Full-frame decoder catches labels even before they are perfectly centered.
+    try{
+      decoderControls=await reader.decodeFromVideoElement($('video'),(result)=>{if(result)handleCandidate(candidateText(result))});
+    }catch(e){console.log('continuous decoder fallback to ROI',e)}
+    // ROI decoder works the high-resolution purple-box crop, raw + contrast-enhanced.
+    roiTimer=setInterval(decodeROI,180);
+  }catch(e){console.error(e);toast('Camera unavailable. Check Safari camera permission.');closeScanner()}
+}
+function closeScanner(){
+  try{if(decoderControls)decoderControls.stop()}catch(e){} decoderControls=null;
+  try{if(roiTimer)clearInterval(roiTimer)}catch(e){} roiTimer=null;
+  try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop())}catch(e){} cameraStream=null;
+  try{$('video').srcObject=null}catch(e){} reader=null;roiBusy=false;$('scanner').classList.remove('open')
+}
+function acceptScan(code){
+  if(!accepted)accepted=true;
+  $('flash').textContent='✓ SCAN COMPLETE\n'+code;$('flash').style.whiteSpace='pre-line';$('flash').style.display='flex';
+  if(navigator.vibrate)navigator.vibrate([80,40,120]);
+  setTimeout(()=>{$('flash').style.display='none';closeScanner();loadRecord(code)},450)
+}
 $('scan').onclick=openScanner;$('closeScan').onclick=closeScanner;$('manualUse').onclick=()=>{const c=$('manualCode').value.trim();if(/^\d{6,12}$/.test(c))acceptScan(c);else toast('Enter the barcode number')};
 $('save').onclick=()=>{const code=$('barcode').value.trim();if(!code){toast('Scan a tire first');return}const raw=localStorage.getItem(key(code));const old=raw?JSON.parse(raw):{newDate:$('newDate').value||today(),lapTotal:0,heatCycles:0,history:[]};const session={date:today(),laps,coldPsi:$('coldPsi').value,hotPsi:$('hotPsi').value,coldCirc:$('coldCirc').value,hotCirc:$('hotCirc').value,compound:$('compound').value,corner:$('corner').value};const r={newDate:old.newDate,recentDate:today(),compound:$('compound').value,corner:$('corner').value,lapTotal:(old.lapTotal||0)+laps,heatCycles:(old.heatCycles||0)+(laps>0?1:0),status:$('status').value,notes:$('notes').value,history:[session,...(old.history||[])].slice(0,100)};localStorage.setItem(key(code),JSON.stringify(r));lapTotal=r.lapTotal;heatCycles=r.heatCycles;$('lapTotal').textContent=lapTotal;$('heatCycles').textContent=heatCycles;$('recentDate').value=r.recentDate;laps=0;$('lapsVal').textContent=0;toast('Tire saved on this iPad')};
 function updateOnline(){const b=$('syncBadge');b.textContent=navigator.onLine?'● ONLINE / OFFLINE READY':'● OFFLINE — SAVING TO iPAD';b.style.color=navigator.onLine?'#8df59a':'#ffd166'}window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);updateOnline();updateDelta();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(console.error);
