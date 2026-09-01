@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#08080b">
-<title>CHASSIS PRO Tire Reader V10</title>
+<title>CHASSIS PRO Tire Reader V11</title>
 <script src="https://unpkg.com/@zxing/browser@0.1.1/umd/zxing-browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.12.1/dist/quagga.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
 <style>
 :root{--purple:#7b2db6;--purple2:#a250df;--green:#48d568;--red:#ff6262;--panel:#141419;--muted:#aaa}
 *{box-sizing:border-box}html,body{margin:0;background:#08080b;color:#fff;font-family:Arial,Helvetica,sans-serif;min-height:100%;-webkit-text-size-adjust:100%}body{padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
@@ -29,7 +29,7 @@ input[type=file]{position:fixed;left:-9999px;top:-9999px;opacity:0}
 <div class="app">
   <div class="brand">CHASSIS PRO</div>
   <div class="title">TIRE NUMBER READER</div>
-  <div class="sub">V10 crack-aware still-photo reader. Shoot the factory label close and centered. The app only accepts an 8-digit number when independent reads agree.</div>
+  <div class="sub">V11 iPad-compatible crack-aware still-photo reader. Shoot the factory label close and centered. The app only accepts an 8-digit number when independent reads agree.</div>
 
   <button id="scanBtn" class="scanBtn">📸 SHOOT TIRE LABEL</button>
   <input id="cameraInput" type="file" accept="image/*" capture="environment">
@@ -62,7 +62,7 @@ input[type=file]{position:fixed;left:-9999px;top:-9999px;opacity:0}
 var EXPECTED_LEN=8;
 var $=function(id){return document.getElementById(id)};
 var input=$('cameraInput'),scanBtn=$('scanBtn'),retakeBtn=$('retakeBtn'),resultEl=$('result'),reasonEl=$('reason'),statusEl=$('status'),statusText=$('statusText'),bar=$('bar');
-var ocrWorker=null,working=false,history=[];
+var ocrWorker=null,working=false,history=[],ocrEngine='',ocrInitError='';
 
 function setStatus(text,kind,pct){statusText.textContent=text;statusEl.className='status'+(kind?' '+kind:'');if(typeof pct==='number')bar.style.width=Math.max(0,Math.min(100,pct))+'%'}
 function digitsOnly(v){return String(v||'').replace(/[^0-9]/g,'')}
@@ -97,13 +97,16 @@ function crackMask(number,label){var n=copyCanvas(number),ctx=n.getContext('2d',
  for(var r=0;r<runs.length;r++){var a=runs[r][0],b=runs[r][1];for(var yy=0;yy<h;yy++){for(var xx=a;xx<b;xx++){var kk=(yy*w+xx)*4;d[kk]=d[kk+1]=d[kk+2]=255}}}
  ctx.putImageData(im,0,0);n._cracks=runs;return n}
 
-function timeout(p,ms){return Promise.race([p,new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},ms)})])}
-async function getWorker(){if(ocrWorker)return ocrWorker;if(!window.Tesseract)throw new Error('OCR library did not load');ocrWorker=await timeout(Tesseract.createWorker('eng',1,{logger:function(m){if(m&&m.status&&typeof m.progress==='number')setStatus(String(m.status).toUpperCase(),'',40+Math.round(m.progress*25))}}),30000);await ocrWorker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});return ocrWorker}
-async function ocrOne(c,label,family){try{var worker=await getWorker(),r=await timeout(worker.recognize(c),15000),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0,code=normalizeOCR(txt);return code?{code:code,confidence:conf||0,label:label,family:family}:null}catch(e){return null}}
+function timeout(p,ms,label){return Promise.race([p,new Promise(function(_,reject){setTimeout(function(){reject(new Error((label||'operation')+' timeout after '+Math.round(ms/1000)+'s'))},ms)})])}
+function iosMajor(){var m=navigator.userAgent.match(/OS (\d+)_/i);return m?parseInt(m[1],10):99}
+function loadScript(src){return new Promise(function(resolve,reject){var x=document.createElement('script');x.src=src;x.async=true;x.onload=resolve;x.onerror=function(){reject(new Error('Could not load '+src))};document.head.appendChild(x)})}
+async function loadOCREngine(){if(window.Tesseract)return;var major=iosMajor();ocrEngine=major<=16?'Tesseract 4 compatibility':'Tesseract 5';var src=major<=16?'https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';setStatus('LOADING '+ocrEngine.toUpperCase(),'',12);await timeout(loadScript(src),30000,'OCR script load')}
+async function getWorker(){if(ocrWorker)return ocrWorker;await loadOCREngine();if(!window.Tesseract)throw new Error('OCR library did not load');var log=function(m){if(m&&m.status&&typeof m.progress==='number')setStatus(String(m.status).toUpperCase(),'',35+Math.round(m.progress*30))};var major=iosMajor();try{if(major<=16){var w=Tesseract.createWorker({logger:log});await timeout(w.load(),45000,'OCR worker load');await timeout(w.loadLanguage('eng'),90000,'OCR language load');await timeout(w.initialize('eng'),60000,'OCR initialize');ocrWorker=w}else{ocrWorker=await timeout(Tesseract.createWorker('eng',1,{logger:log,workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',langPath:'https://tessdata.projectnaptha.com/4.0.0',corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-lstm.wasm.js'}),90000,'OCR worker init')}await ocrWorker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});ocrInitError='';return ocrWorker}catch(e){ocrWorker=null;ocrInitError=e&&e.message?e.message:String(e);throw e}}
+async function ocrOne(c,label,family){try{var worker=await getWorker(),r=await timeout(worker.recognize(c),30000,'OCR recognize'),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0,code=normalizeOCR(txt);return {code:code||'',raw:String(txt||'').trim(),confidence:conf||0,label:label,family:family,error:''}}catch(e){return {code:'',raw:'',confidence:0,label:label,family:family,error:e&&e.message?e.message:String(e)}}}
 async function zxing(c){if(!window.ZXingBrowser)return null;try{var rd=new ZXingBrowser.BrowserMultiFormatReader(),r=await timeout(rd.decodeFromCanvas(c),3500),d=digitsOnly(r&&r.getText?r.getText():r&&r.text?r.text:r);if(d.length===EXPECTED_LEN)return {code:d,engine:'ZXING'}}catch(e){}return null}
 function quagga(c){return timeout(new Promise(function(resolve){if(!window.Quagga){resolve(null);return}try{Quagga.decodeSingle({src:c.toDataURL('image/jpeg',.96),locate:true,numOfWorkers:0,inputStream:{size:1800,singleChannel:false},locator:{halfSample:false,patchSize:'small'},decoder:{readers:['code_128_reader','code_39_reader','code_93_reader','i2of5_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader'],multiple:false}},function(r){var d=digitsOnly(r&&r.codeResult?r.codeResult.code:'');resolve(d.length===EXPECTED_LEN?{code:d,engine:'QUAGGA'}:null)})}catch(e){resolve(null)}}),4500).catch(function(){return null})}
 
-function choose(barcodes,ocrs){var bc=barcodes.filter(Boolean),oc=ocrs.filter(Boolean),i,j;
+function choose(barcodes,ocrs){var bc=barcodes.filter(Boolean),oc=ocrs.filter(function(x){return x&&x.code}),i,j;
  // Two independent barcode engines agree.
  if(bc.length>=2&&bc[0].code===bc[1].code)return {code:bc[0].code,reason:'two barcode engines agree'};
  // Barcode plus OCR agreement is strongest when a cracked barcode is still decodable.
@@ -124,14 +127,14 @@ async function analyzeFile(file){if(working)return;working=true;scanBtn.disabled
   ['orig gray',enhance(num,1.45,null,3.0),'original'],['orig strong',enhance(num,2.0,null,3.0),'original'],['orig bw125',enhance(num,1.15,125,3.0),'original'],['orig bw150',enhance(num,1.15,150,3.0),'original'],
   ['masked gray',enhance(masked,1.45,null,3.0),'masked'],['masked strong',enhance(masked,2.0,null,3.0),'masked'],['masked bw125',enhance(masked,1.15,125,3.0),'masked'],['masked bw150',enhance(masked,1.15,150,3.0),'masked']
  ],ocrs=[];
- for(var i=0;i<variants.length;i++){setStatus('OCR PASS '+(i+1)+' / '+variants.length,'',45+Math.round(i/variants.length*45));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r);var early=choose([bc1,bc2],ocrs);if(early){dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(early.code,early.reason);return}}
- dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');var chosen=choose([bc1,bc2],ocrs);if(chosen)accept(chosen.code,chosen.reason);else fail('The readers did not agree strongly enough. No tire was collected. Shoot it again closer and level.')
+ for(var i=0;i<variants.length;i++){setStatus('OCR PASS '+(i+1)+' / '+variants.length,'',45+Math.round(i/variants.length*45));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r);var early=choose([bc1,bc2],ocrs);if(early){dbg.push('ocr engine '+(ocrEngine||'initialized'));dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(early.code,early.reason);return}}
+ dbg.push('ocr engine '+(ocrEngine||'not initialized'));if(ocrInitError)dbg.push('ocr init error '+ocrInitError);dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');var chosen=choose([bc1,bc2],ocrs);if(chosen)accept(chosen.code,chosen.reason);else fail('The readers did not agree strongly enough. No tire was collected. Shoot it again closer and level.')
  }catch(e){$('debugText').textContent=dbg.join('\n')+'\nERROR '+(e&&e.message?e.message:e);fail('Reader error. Retake the photo. First use requires an internet connection so the OCR engine can load.')}
 }
 scanBtn.onclick=function(){if(!working){input.value='';input.click()}};retakeBtn.onclick=function(){input.value='';input.click()};input.onchange=function(){if(input.files&&input.files[0])analyzeFile(input.files[0])};
 // Five taps on the title reveals debug canvases without cluttering race-day use.
 var taps=0,timer=null;document.querySelector('.title').onclick=function(){taps++;clearTimeout(timer);timer=setTimeout(function(){taps=0},1500);if(taps>=5){$('debug').classList.toggle('show');taps=0}};
-renderHistory();
+renderHistory();setTimeout(function(){getWorker().then(function(){setStatus('READY — OCR LOADED','ok',0)}).catch(function(e){ocrInitError=e&&e.message?e.message:String(e);setStatus('READY — OCR LOAD RETRIES ON PHOTO','',0)})},500);
 })();
 </script>
 </body>
