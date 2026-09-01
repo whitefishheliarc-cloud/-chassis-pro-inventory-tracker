@@ -3,208 +3,136 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#050506">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/icon-192.png">
-<title>CHASSIS PRO Inventory Tracker — V9</title>
+<meta name="theme-color" content="#08080b">
+<title>CHASSIS PRO Tire Reader V10</title>
 <script src="https://unpkg.com/@zxing/browser@0.1.1/umd/zxing-browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.12.1/dist/quagga.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
-html,body{margin:0;background:#050506;font-family:Arial,Helvetica,sans-serif;color:white;overscroll-behavior:none}.page{display:flex;justify-content:center;min-height:100vh;padding:8px}.stage{position:relative;width:min(calc(100vw - 16px),1536px);aspect-ratio:1536/1024;background:url('assets/mockup.png') center/100% 100% no-repeat;box-shadow:0 0 40px #000}.overlay{position:absolute;z-index:3}input,select,textarea,button{font-family:Arial,Helvetica,sans-serif}.light{background:rgba(246,246,248,.98);border:0;color:#111;border-radius:.45vw;font-weight:800;outline:none}.dark{background:rgba(13,13,16,.98);border:0;color:white;border-radius:.45vw;outline:none}
-#barcode{left:4.2%;top:27.1%;width:25.7%;height:6.6%;font-size:3.3vw;padding:0 .9%;font-weight:900;letter-spacing:.08em}#newDate{left:33.2%;top:28%;width:10.9%;height:4.9%;font-size:1.5vw;padding:0 .8%}#recentDate{left:47.4%;top:28%;width:10.8%;height:4.9%;font-size:1.5vw;padding:0 .8%}#compound{left:3.6%;top:38.7%;width:25.8%;height:4.9%;font-size:1.7vw;padding:0 1.2%}#corner{left:33.7%;top:38.7%;width:23.1%;height:4.9%;font-size:1.7vw;padding:0 1.2%}
-#minus{left:12.4%;top:50.1%;width:3.5%;height:4.6%;font-size:2vw}#plus{left:16.7%;top:50.1%;width:3.5%;height:4.6%;font-size:1.9vw}#lapsVal{left:5%;top:49.2%;width:6.8%;height:5.8%;display:flex;align-items:center;justify-content:center;font-size:2.5vw;font-weight:900;color:#111;background:#efeff2;border-radius:.25vw}#lapTotal{left:26.5%;top:49.2%;width:11.3%;height:5.8%;display:flex;align-items:center;justify-content:center;font-size:2.5vw;font-weight:900;color:#111;background:#efeff2;border-radius:.25vw}#heatCycles{left:46.2%;top:49.2%;width:9.2%;height:5.8%;display:flex;align-items:center;justify-content:center;font-size:2.5vw;font-weight:900;color:#111;background:#efeff2;border-radius:.25vw}
-#coldPsi{left:2.8%;top:61.3%;width:13%;height:5.8%;font-size:2.3vw;text-align:center}#coldCirc{left:16.9%;top:61.3%;width:13.5%;height:5.8%;font-size:2.1vw;text-align:center}#hotPsi{left:31.6%;top:61.3%;width:12.4%;height:5.8%;font-size:2.3vw;text-align:center}#hotCirc{left:44.5%;top:61.3%;width:13.3%;height:5.8%;font-size:2.1vw;text-align:center}#psiChange{left:13%;top:73.4%;width:6.7%;height:4.6%;display:flex;align-items:center;justify-content:center;font-size:2.4vw;font-weight:900}#circChange{left:40.8%;top:73.4%;width:7.4%;height:4.6%;display:flex;align-items:center;justify-content:center;font-size:2.4vw;font-weight:900}
-#status{left:62.9%;top:21.8%;width:33%;height:6.6%;font-size:2.1vw;font-weight:900;padding:0 1.3%;color:#39c44a}#notes{left:62.6%;top:75.5%;width:34.1%;height:13.8%;font-size:1.3vw;padding:1%;resize:none;background:rgba(26,26,30,.98);border:0;color:white}#save{left:2.7%;top:81.3%;width:55.2%;height:7%;background:linear-gradient(90deg,#4d127a,#7226aa);border:0;color:white;font-size:2vw;font-weight:900;border-radius:.65vw}#scan{left:80%;top:5.6%;width:17%;height:7.5%;background:rgba(8,8,10,.96);border:.15vw solid #6d2aa8;color:white;font-size:1.6vw;font-weight:900;border-radius:.6vw}.click{cursor:pointer}
-#syncBadge{position:absolute;z-index:4;right:2%;top:14%;font-size:.85vw;background:#151519cc;border:1px solid #444;border-radius:99px;padding:.5% .8%;color:#8df59a}.modal{position:fixed;inset:0;background:#000;z-index:99;display:none;flex-direction:column}.modal.open{display:flex}.scanTop{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;background:#050506}.scanTitle{font-size:22px;font-weight:900}.close{background:#222;border:1px solid #555;color:white;border-radius:10px;padding:12px 16px;font-weight:800}.cameraWrap{position:relative;flex:1;overflow:hidden;background:#000}.cameraWrap video{width:100%;height:100%;object-fit:cover}.target{position:absolute;left:10%;right:10%;top:47%;height:13%;border:3px solid #9b4be0;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.28);overflow:hidden}.scanLine{position:absolute;left:4%;right:4%;height:3px;top:50%;background:#d9a7ff;box-shadow:0 0 12px #a53cf0;animation:sweep 1.2s ease-in-out infinite alternate}@keyframes sweep{from{transform:translateY(-60px)}to{transform:translateY(60px)}}.scanHint{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-size:18px;font-weight:800;text-shadow:0 2px 4px #000}.scanStatus{position:absolute;left:4%;right:4%;bottom:22%;z-index:15;text-align:center;font-size:13px;font-weight:800;color:#fff;background:rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:7px 8px;text-shadow:0 2px 4px #000}.resultFlash{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(57,196,74,.28);font-size:34px;font-weight:900}.ocrBadge{position:absolute;left:4%;top:2.5%;background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.24);border-radius:8px;padding:7px 9px;font-size:12px;font-weight:900}.confirmCard{position:absolute;z-index:10;left:6%;right:6%;top:24%;display:none;background:#0d0d10;border:2px solid #9b4be0;border-radius:16px;padding:18px;box-shadow:0 12px 40px #000}.confirmCard.show{display:block}.confirmTitle{font-size:16px;font-weight:900;margin-bottom:8px}.confirmText{font-size:13px;color:#bbb;margin-bottom:12px}.confirmInput{box-sizing:border-box;width:100%;font-size:32px;font-weight:900;letter-spacing:.08em;padding:12px;border-radius:10px;border:0;background:#f4f4f6;color:#111}.confirmBtns{display:flex;gap:10px;margin-top:12px}.confirmBtns button{flex:1;padding:13px 10px;border-radius:10px;border:0;font-weight:900;font-size:15px}.confirmUse{background:#7628b3;color:white}.confirmAgain{background:#2a2a2f;color:white;border:1px solid #555!important}.manualBar{display:flex;gap:10px;padding:12px 18px calc(env(safe-area-inset-bottom) + 14px);background:#09090b}.manualBar input{flex:1;font-size:22px;padding:14px;border-radius:10px;border:1px solid #555}.manualBar button{font-size:18px;padding:14px 18px;background:#6d2aa8;border:0;color:#fff;border-radius:10px;font-weight:900}.toast{position:fixed;right:18px;bottom:18px;background:#141418;color:#fff;border:1px solid #555;padding:12px 16px;border-radius:8px;font-weight:700;display:none;z-index:120}
-
-.frozenPreview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:1}.frozenPreview.show{display:block}.captureBar{position:absolute;z-index:12;left:6%;right:6%;bottom:8%;display:flex;gap:10px}.captureBtn{flex:1;padding:16px 14px;border:0;border-radius:12px;background:#7628b3;color:#fff;font-size:18px;font-weight:900;box-shadow:0 8px 24px #0008}.captureBtn:disabled{opacity:.5}.retakeBtn{display:none;padding:16px 14px;border-radius:12px;border:1px solid #666;background:#242429;color:#fff;font-size:16px;font-weight:900}.retakeBtn.show{display:block}.captureHelp{position:absolute;z-index:11;left:5%;right:5%;bottom:17%;text-align:center;font-size:15px;font-weight:800;text-shadow:0 2px 5px #000}.scanLine.paused{display:none}
-@media(max-width:900px){#barcode{font-size:5.5vw}#newDate,#recentDate,#compound,#corner,#status,#notes,#scan{font-size:2.5vw}#coldPsi,#coldCirc,#hotPsi,#hotCirc,#lapsVal,#lapTotal,#heatCycles,#psiChange,#circChange{font-size:3.6vw}#save{font-size:3vw}#syncBadge{font-size:1.8vw}}
+:root{--purple:#7b2db6;--purple2:#a250df;--green:#48d568;--red:#ff6262;--panel:#141419;--muted:#aaa}
+*{box-sizing:border-box}html,body{margin:0;background:#08080b;color:#fff;font-family:Arial,Helvetica,sans-serif;min-height:100%;-webkit-text-size-adjust:100%}body{padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+.app{max-width:760px;margin:0 auto;padding:18px 0 30px}.brand{font-size:13px;letter-spacing:.19em;color:#c996ef;font-weight:900}.title{font-size:30px;font-weight:1000;margin:5px 0 2px}.sub{color:#aaa;font-size:14px;line-height:1.35;margin-bottom:18px}
+.card{background:var(--panel);border:1px solid #2c2c34;border-radius:16px;padding:16px;margin:12px 0}.resultLabel{font-size:12px;color:#bda5cf;font-weight:900;letter-spacing:.12em}.result{font-size:42px;letter-spacing:.08em;font-weight:1000;margin:7px 0 4px;min-height:50px}.reason{font-size:13px;color:#aaa;min-height:18px;line-height:1.35}
+.scanBtn,.retakeBtn{width:100%;border:0;border-radius:14px;padding:18px;font-size:20px;font-weight:1000;color:#fff;background:linear-gradient(90deg,#541483,#852ebd);box-shadow:0 8px 24px #0008}.retakeBtn{background:#282830;border:1px solid #555;box-shadow:none;margin-top:10px}.scanBtn:active,.retakeBtn:active{transform:scale(.99)}
+.status{display:flex;gap:10px;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#0d0d11;border:1px solid #292932}.dot{width:10px;height:10px;border-radius:50%;background:#777;flex:none}.status.ok .dot{background:var(--green)}.status.bad .dot{background:var(--red)}.statusText{font-size:14px;font-weight:800}
+.progress{height:8px;border-radius:99px;background:#292932;overflow:hidden;margin-top:10px}.bar{height:100%;width:0;background:linear-gradient(90deg,#6f27a7,#b462e4);transition:width .2s}
+.historyTitle{font-size:12px;color:#bda5cf;font-weight:900;letter-spacing:.12em;margin-bottom:8px}.row{display:flex;justify-content:space-between;border-top:1px solid #2d2d34;padding:10px 0;font-size:14px}.row:first-of-type{border-top:0}.id{font-weight:900;letter-spacing:.08em}.time{color:#8f8f99}
+.debug{display:none;margin-top:10px}.debug.show{display:block}.debug canvas{width:100%;background:#000;border-radius:10px;margin:6px 0}.small{font-size:11px;color:#888;white-space:pre-wrap;word-break:break-word}
+.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#24242c;color:#bbb;font-size:11px;font-weight:800;margin-top:8px}
+input[type=file]{position:fixed;left:-9999px;top:-9999px;opacity:0}
+@media(min-width:600px){.title{font-size:36px}.result{font-size:52px}.scanBtn{font-size:22px}}
 </style>
 </head>
 <body>
-<div class="page"><div class="stage">
-<button id="scan" class="overlay click">▣ &nbsp; SCAN BARCODE</button><div id="syncBadge">● OFFLINE READY</div>
-<input id="barcode" class="overlay light" value=""><input id="newDate" class="overlay light" readonly><input id="recentDate" class="overlay light" readonly>
-<select id="compound" class="overlay light"><option>M20</option><option selected>M30</option><option>M450</option></select><select id="corner" class="overlay light"><option>LF</option><option>LR</option><option>RF</option><option>RR</option></select>
-<div id="lapsVal" class="overlay">0</div><button id="minus" class="overlay light click">−</button><button id="plus" class="overlay light click">+</button><div id="lapTotal" class="overlay">0</div><div id="heatCycles" class="overlay">0</div>
-<input id="coldPsi" class="overlay light" inputmode="numeric"><input id="coldCirc" class="overlay light" placeholder="85 7/16"><input id="hotPsi" class="overlay light" inputmode="numeric"><input id="hotCirc" class="overlay light" placeholder="86 1/16"><div id="psiChange" class="overlay"></div><div id="circChange" class="overlay"></div>
-<select id="status" class="overlay dark"><option>ACTIVE</option><option>INACTIVE</option><option>OUT OF INVENTORY</option></select><textarea id="notes" class="overlay" placeholder="Add notes about this tire..."></textarea><button id="save" class="overlay click">▣ &nbsp; SAVE TIRE RECORD</button>
-</div></div>
-<div id="scanner" class="modal"><div class="scanTop"><div class="scanTitle">HOOSIER NUMBER SCANNER</div><button id="closeScan" class="close">CANCEL</button></div><div class="cameraWrap"><video id="video" muted playsinline></video><img id="frozenPreview" class="frozenPreview" alt="Captured tire label"><div id="target" class="target"><div id="scanLine" class="scanLine"></div></div><div id="ocrBadge" class="ocrBadge">V9 • NUMBER READER</div><div id="scanHint" class="scanHint">Fill the purple box with the 8 printed digits</div><div id="captureHelp" class="captureHelp">Hold steady, then tap CAPTURE &amp; READ</div><div id="scanStatus" class="scanStatus">CAMERA READY</div><canvas id="scanCanvas" hidden></canvas><div id="captureBar" class="captureBar"><button id="retakeBtn" class="retakeBtn">RETAKE</button><button id="captureBtn" class="captureBtn">📸 CAPTURE &amp; READ</button></div><div id="confirmCard" class="confirmCard"><div class="confirmTitle">NUMBER FOUND</div><div id="confirmText" class="confirmText">Number read from the captured tire label. Check it before using.</div><input id="confirmInput" class="confirmInput" inputmode="numeric"><div class="confirmBtns"><button id="confirmAgain" class="confirmAgain">RETAKE</button><button id="confirmUse" class="confirmUse">USE NUMBER</button></div></div><div id="flash" class="resultFlash"></div></div><div class="manualBar"><input id="manualCode" inputmode="numeric" placeholder="Manual barcode entry"><button id="manualUse">USE</button></div></div>
-<div id="toast" class="toast"></div>
+<div class="app">
+  <div class="brand">CHASSIS PRO</div>
+  <div class="title">TIRE NUMBER READER</div>
+  <div class="sub">V10 crack-aware still-photo reader. Shoot the factory label close and centered. The app only accepts an 8-digit number when independent reads agree.</div>
+
+  <button id="scanBtn" class="scanBtn">📸 SHOOT TIRE LABEL</button>
+  <input id="cameraInput" type="file" accept="image/*" capture="environment">
+
+  <div class="card">
+    <div class="resultLabel">LAST ACCEPTED TIRE</div>
+    <div id="result" class="result">—</div>
+    <div id="reason" class="reason">Ready.</div>
+    <div id="status" class="status"><div class="dot"></div><div id="statusText" class="statusText">WAITING FOR PHOTO</div></div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <button id="retakeBtn" class="retakeBtn" style="display:none">RETAKE</button>
+    <div class="pill">NO MANUAL NUMBER ENTRY</div>
+  </div>
+
+  <div class="card">
+    <div class="historyTitle">COLLECTED THIS SESSION</div>
+    <div id="history"><div class="reason">No tires collected yet.</div></div>
+  </div>
+
+  <div id="debug" class="card debug">
+    <div class="historyTitle">READER DEBUG</div>
+    <canvas id="labelCanvas"></canvas>
+    <canvas id="numberCanvas"></canvas>
+    <div id="debugText" class="small"></div>
+  </div>
+</div>
 <script>
-const $=id=>document.getElementById(id);const today=()=>new Date().toLocaleDateString('en-US',{year:'numeric',month:'2-digit',day:'2-digit'});let laps=0,lapTotal=0,heatCycles=0,scanControls=null,lastCandidate='',sameCount=0;
-function parseFrac(s){s=String(s).trim();if(!s)return NaN;const p=s.split(/\s+/);if(p.length===1&&p[0].includes('/')){const[a,b]=p[0].split('/').map(Number);return a/b}let w=parseFloat(p[0]),f=0;if(p[1]&&p[1].includes('/')){const[a,b]=p[1].split('/').map(Number);f=a/b}return w+f}
-function to16(x){let sign=x<0?-1:1;x=Math.abs(x);let w=Math.floor(x+1e-9),n=Math.round((x-w)*16);if(n===16){w++;n=0}if(n===0)return(sign<0?'-':'')+w;const gcd=(a,b)=>b?gcd(b,a%b):a,d=gcd(n,16);return(sign<0?'-':'')+(w?w+' ':'')+(n/d)+'/'+(16/d)}
-function updateDelta(){const p=Number($('hotPsi').value)-Number($('coldPsi').value),c=parseFrac($('hotCirc').value)-parseFrac($('coldCirc').value);const paint=(e,v,t)=>{e.textContent=t;e.style.color=v>0?'#39c44a':v<0?'#ff4d4d':'#111'};paint($('psiChange'),p,(p>0?'+':'')+(Number.isFinite(p)?Math.round(p):'—'));paint($('circChange'),c,(c>0?'+':'')+(Number.isFinite(c)?to16(c):'—'))}
-['coldPsi','hotPsi','coldCirc','hotCirc'].forEach(id=>$(id).addEventListener('input',updateDelta));$('plus').onclick=()=>{laps++;$('lapsVal').textContent=laps};$('minus').onclick=()=>{laps=Math.max(0,laps-1);$('lapsVal').textContent=laps};
-function key(code=$('barcode').value){return'chassispro:'+code}function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',1800)}
-function loadRecord(code){$('barcode').value=code;const raw=localStorage.getItem(key(code));if(raw){const r=JSON.parse(raw);$('newDate').value=r.newDate;$('recentDate').value=r.recentDate;$('compound').value=r.compound;$('corner').value=r.corner;lapTotal=r.lapTotal||0;heatCycles=r.heatCycles||0;$('lapTotal').textContent=lapTotal;$('heatCycles').textContent=heatCycles;$('status').value=r.status||'ACTIVE';$('notes').value=r.notes||'';toast('Existing tire loaded')}else{$('newDate').value=today();$('recentDate').value=today();lapTotal=0;heatCycles=0;$('lapTotal').textContent=0;$('heatCycles').textContent=0;$('notes').value='';toast('New tire created')}laps=0;$('lapsVal').textContent=0}
-$('barcode').addEventListener('change',()=>{if($('barcode').value.trim())loadRecord($('barcode').value.trim())});
-let cameraStream=null,reader=null,accepted=false,capturedFull=null,capturedCrop=null,analyzing=false,ocrWorker=null;
-let frameCount=0,zxingHits=0,quaggaHits=0,ocrHits=0,lastFormat='';
-function setScanStatus(m){$('scanStatus').textContent=m}
-function cleanDigits(text){return String(text||'').replace(/\D/g,'')}
-function candidateText(result){return (result&&result.getText?result.getText():String((result&&result.text)||'')).trim()}
-function updateDebug(extra=''){
-  const engines=(window.ZXingBrowser?'ZXING✓':'ZXING×')+'  '+(window.Quagga?'QUAGGA✓':'QUAGGA×')+'  '+(window.Tesseract?'OCR✓':'OCR×');
-  setScanStatus(`${engines}${extra?'  '+extra:''}`)
-}
-async function tuneCamera(){
-  try{
-    const track=cameraStream&&cameraStream.getVideoTracks()[0]; if(!track)return;
-    const caps=track.getCapabilities?track.getCapabilities():{}; const advanced={};
-    if(caps.focusMode&&caps.focusMode.includes('continuous'))advanced.focusMode='continuous';
-    if(caps.exposureMode&&caps.exposureMode.includes('continuous'))advanced.exposureMode='continuous';
-    if(caps.zoom){const min=Number(caps.zoom.min||1),max=Number(caps.zoom.max||1);advanced.zoom=Math.min(max,Math.max(min,1.25));}
-    if(Object.keys(advanced).length)await track.applyConstraints({advanced:[advanced]});
-  }catch(e){console.log('camera tuning unavailable',e)}
-}
-function enhanceCanvas(source,contrast=1.8,threshold=null,scale=1){
-  const out=document.createElement('canvas');out.width=Math.max(1,Math.round(source.width*scale));out.height=Math.max(1,Math.round(source.height*scale));
-  const ctx=out.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(source,0,0,out.width,out.height);
-  const img=ctx.getImageData(0,0,out.width,out.height),d=img.data;
-  for(let i=0;i<d.length;i+=4){const y=.299*d[i]+.587*d[i+1]+.114*d[i+2];let v=(y-128)*contrast+128;if(threshold!==null)v=v<threshold?0:255;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v}
-  ctx.putImageData(img,0,0);return out
-}
-function captureFullFrame(){
-  const v=$('video'); if(!v.videoWidth||!v.videoHeight)return null;
-  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(v,0,0,c.width,c.height);return c
-}
-function cropTargetFromFull(full){
-  const v=$('video'),t=$('target');const vr=v.getBoundingClientRect(),tr=t.getBoundingClientRect();
-  const vw=full.width,vh=full.height,scale=Math.max(vr.width/vw,vr.height/vh);const dw=vw*scale,dh=vh*scale;const ox=(vr.width-dw)/2,oy=(vr.height-dh)/2;
-  let sx=(tr.left-vr.left-ox)/scale,sy=(tr.top-vr.top-oy)/scale,sw=tr.width/scale,sh=tr.height/scale;
-  sx=Math.max(0,sx);sy=Math.max(0,sy);sw=Math.min(vw-sx,sw);sh=Math.min(vh-sy,sh);
-  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(sw));c.height=Math.max(1,Math.round(sh));c.getContext('2d',{willReadFrequently:true}).drawImage(full,sx,sy,sw,sh,0,0,c.width,c.height);return c
-}
-function cropBand(source,yFrac,hFrac,padFrac=0){
-  const sy=Math.max(0,Math.round(source.height*yFrac)),sh=Math.min(source.height-sy,Math.round(source.height*hFrac));
-  const px=Math.round(source.width*padFrac),c=document.createElement('canvas');c.width=Math.max(1,source.width-2*px);c.height=Math.max(1,sh);c.getContext('2d',{willReadFrequently:true}).drawImage(source,px,sy,c.width,sh,0,0,c.width,c.height);return c
-}
-function freezePreview(full){$('frozenPreview').src=full.toDataURL('image/jpeg',.94);$('frozenPreview').classList.add('show');$('scanLine').classList.add('paused');$('captureHelp').textContent='Captured image — analyzing the label';$('retakeBtn').classList.add('show')}
-function unfreezePreview(){$('frozenPreview').classList.remove('show');$('frozenPreview').removeAttribute('src');$('scanLine').classList.remove('paused');$('captureHelp').textContent='Fill the box with the 8 digits, hold steady, then tap CAPTURE & READ';$('retakeBtn').classList.remove('show');$('confirmCard').classList.remove('show');$('captureBtn').disabled=false;analyzing=false;accepted=false;capturedFull=null;capturedCrop=null;updateDebug('READY')}
-async function zxingRead(canvas){
-  if(!window.ZXingBrowser)return null;try{if(!reader)reader=new ZXingBrowser.BrowserMultiFormatReader();const r=await reader.decodeFromCanvas(canvas);const raw=candidateText(r),digits=cleanDigits(raw);if(/^\d{6,12}$/.test(digits)){zxingHits++;return {code:digits,source:'BARCODE / ZXING'}}}catch(e){}return null
-}
-function quaggaRead(canvas){return withTimeout(new Promise(resolve=>{if(!window.Quagga){resolve(null);return}try{Quagga.decodeSingle({src:canvas.toDataURL('image/jpeg',.94),locate:true,numOfWorkers:0,inputStream:{size:1200,singleChannel:false},locator:{halfSample:true,patchSize:'medium'},decoder:{readers:['code_128_reader','code_39_reader','code_93_reader','i2of5_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader'],multiple:false}},r=>{const raw=r&&r.codeResult&&r.codeResult.code,digits=cleanDigits(raw);if(/^\d{6,12}$/.test(digits)){quaggaHits++;resolve({code:digits,source:'BARCODE / QUAGGA'})}else resolve(null)})}catch(e){resolve(null)}}),2500,'barcode fallback').catch(()=>null)}
-function normalizeOcrText(text){
-  // Tire IDs are eight printed digits. OCR often inserts spaces, cracks, dashes or
-  // stray letters between otherwise-correct digits, so normalize first and then join.
-  let t=String(text||'').toUpperCase()
-    .replace(/[OQD]/g,'0').replace(/[IL|!]/g,'1').replace(/[SZ]/g,'5')
-    .replace(/B/g,'8').replace(/G/g,'6');
-  const digits=t.replace(/[^0-9]/g,'');
-  if(digits.length===8)return digits;
-  // If OCR picked up a little extra noise, prefer an 8-digit window.
-  if(digits.length>8 && digits.length<=12){
-    // Most noise lands at the edges; test centered windows first.
-    const starts=[];for(let i=0;i<=digits.length-8;i++)starts.push(i);
-    starts.sort((a,b)=>Math.abs((a+4)-digits.length/2)-Math.abs((b+4)-digits.length/2));
-    return digits.slice(starts[0],starts[0]+8);
-  }
-  return '';
-}
-function withTimeout(promise,ms,label){
-  return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+' timed out')),ms))]);
-}
-async function getOcrWorker(){
-  if(ocrWorker)return ocrWorker;
-  if(!window.Tesseract)throw new Error('OCR library did not load');
-  setScanStatus('STAGE 3/4 — STARTING OCR ENGINE…');
-  $('captureHelp').textContent='OCR engine is starting — first scan can take a few seconds';
-  ocrWorker=await withTimeout(Tesseract.createWorker('eng',1,{logger:m=>{
-    if(m&&m.status){const pct=Number.isFinite(m.progress)?` ${Math.round(m.progress*100)}%`:'';setScanStatus(`STAGE 3/4 — ${String(m.status).toUpperCase()}${pct}`)}
-  }}),25000,'OCR startup');
-  await ocrWorker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});
-  return ocrWorker;
-}
-async function ocrRead(canvas,label,step,total){
-  setScanStatus(`STAGE 3/4 — OCR ${step}/${total}: ${label.toUpperCase()}`);
-  $('captureHelp').textContent=`Reading captured label — pass ${step} of ${total}`;
-  try{
-    const worker=await getOcrWorker();
-    const r=await withTimeout(worker.recognize(canvas),12000,'OCR read');
-    const text=r&&r.data&&r.data.text||'',confidence=r&&r.data&&r.data.confidence||0,code=normalizeOcrText(text);
-    if(/^\d{8}$/.test(code)){ocrHits++;setScanStatus(`STAGE 3/4 — OCR SAW ${code}`);return {code,confidence,label}}
-    return null;
-  }catch(e){
-    console.error('OCR failure',e);setScanStatus(`OCR ERROR — ${e.message||e}`);throw e;
-  }
-}
-function chooseConsensus(results){
-  const valid=results.filter(Boolean);if(!valid.length)return null;
-  const exact=new Map();for(const r of valid){const k=r.code;exact.set(k,(exact.get(k)||0)+1)}
-  const exactWinner=[...exact.entries()].sort((a,b)=>b[1]-a[1])[0];if(exactWinner&&exactWinner[1]>=2){const same=valid.filter(r=>r.code===exactWinner[0]);return {code:exactWinner[0],agreement:exactWinner[1],confidence:Math.max(...same.map(x=>x.confidence||0)),source:'OCR consensus'}}
-  const eight=valid.filter(r=>r.code.length===8);if(eight.length>=2){let out='';for(let i=0;i<8;i++){const counts={};for(const r of eight){const d=r.code[i];counts[d]=(counts[d]||0)+1}out+=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0]}return {code:out,agreement:1,confidence:Math.max(...eight.map(x=>x.confidence||0)),source:'OCR digit vote'}}
-  valid.sort((a,b)=>(b.confidence||0)-(a.confidence||0));return {code:valid[0].code,agreement:1,confidence:valid[0].confidence||0,source:'OCR best read'}
-}
-function showConfirm(result){accepted=true;lastFormat=result.source||'READ';$('confirmInput').value=result.code;const conf=result.confidence?` • ${Math.round(result.confidence)}% OCR confidence`:'';const agree=result.agreement>1?` • ${result.agreement} matching reads`:'';$('confirmText').textContent=`Captured image result: ${result.source||'reader'}${agree}${conf}. Check it against the tire, then tap USE NUMBER.`;$('confirmCard').classList.add('show');setScanStatus(`NUMBER FOUND  ${result.code}`)}
-async function analyzeCapture(){
-  if(analyzing||!capturedCrop)return;analyzing=true;$('captureBtn').disabled=true;zxingHits=quaggaHits=ocrHits=0;
-  try{
-    const raw=capturedCrop;
-    setScanStatus('STAGE 2/4 — CAPTURED ✓  STARTING OCR…');
-    $('captureHelp').textContent='Captured ✓ — reading the 8 printed digits';
-    if(!window.Tesseract)throw new Error('OCR library did not load. Check internet connection.');
+(function(){
+'use strict';
+var EXPECTED_LEN=8;
+var $=function(id){return document.getElementById(id)};
+var input=$('cameraInput'),scanBtn=$('scanBtn'),retakeBtn=$('retakeBtn'),resultEl=$('result'),reasonEl=$('reason'),statusEl=$('status'),statusText=$('statusText'),bar=$('bar');
+var ocrWorker=null,working=false,history=[];
 
-    // V9 targets ONLY the printed 8-digit number. The purple box is the OCR crop.
-    // Run multiple treatments because cracked labels change contrast across individual digits.
-    const numberCrop=raw;
-    const inner=cropBand(raw,.08,.84,.02);
-    const variants=[
-      ['clean grayscale',enhanceCanvas(inner,1.35,null,3.0)],
-      ['strong contrast',enhanceCanvas(inner,2.0,null,3.0)],
-      ['B/W 105',enhanceCanvas(inner,1.15,105,3.0)],
-      ['B/W 125',enhanceCanvas(inner,1.15,125,3.0)],
-      ['B/W 145',enhanceCanvas(inner,1.15,145,3.0)],
-      ['B/W 165',enhanceCanvas(inner,1.15,165,3.0)],
-      ['full number box',enhanceCanvas(numberCrop,1.6,null,2.5)]
-    ];
-    const results=[];
-    for(let i=0;i<variants.length;i++){
-      const [label,c]=variants[i];
-      const r=await ocrRead(c,label,i+1,variants.length);
-      if(r)results.push(r);
-      // If we already have two identical 8-digit reads, stop early.
-      const counts={};for(const x of results){if(x.code.length===8)counts[x.code]=(counts[x.code]||0)+1}
-      const stable=Object.entries(counts).find(([,n])=>n>=2);
-      if(stable){const chosen={code:stable[0],agreement:stable[1],confidence:Math.max(...results.filter(x=>x.code===stable[0]).map(x=>x.confidence||0)),source:'OCR consensus'};setScanStatus(`STAGE 4/4 — NUMBER FOUND ${chosen.code} ✓`);showConfirm(chosen);return}
-    }
-    const chosen=chooseConsensus(results);
-    if(chosen){setScanStatus(`STAGE 4/4 — NUMBER FOUND ${chosen.code} ✓`);showConfirm(chosen);return}
+function setStatus(text,kind,pct){statusText.textContent=text;statusEl.className='status'+(kind?' '+kind:'');if(typeof pct==='number')bar.style.width=Math.max(0,Math.min(100,pct))+'%'}
+function digitsOnly(v){return String(v||'').replace(/[^0-9]/g,'')}
+function normalizeOCR(v){var t=String(v||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|!]/g,'1').replace(/[SZ]/g,'5').replace(/B/g,'8').replace(/G/g,'6');var d=digitsOnly(t);if(d.length===EXPECTED_LEN)return d;if(d.length>EXPECTED_LEN&&d.length<=11){var best='';for(var i=0;i<=d.length-EXPECTED_LEN;i++){var w=d.slice(i,i+EXPECTED_LEN);if(!best)best=w}return best}return ''}
+function loadImage(file){return new Promise(function(resolve,reject){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){URL.revokeObjectURL(u);resolve(im)};im.onerror=function(){URL.revokeObjectURL(u);reject(new Error('Could not open photo'))};im.src=u})}
+function canvasFromImage(im,maxSide){var scale=Math.min(1,maxSide/Math.max(im.naturalWidth||im.width,im.naturalHeight||im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round((im.naturalWidth||im.width)*scale));c.height=Math.max(1,Math.round((im.naturalHeight||im.height)*scale));c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c}
+function copyCanvas(src){var c=document.createElement('canvas');c.width=src.width;c.height=src.height;c.getContext('2d').drawImage(src,0,0);return c}
+function cropCanvas(src,x,y,w,h){x=Math.max(0,Math.round(x));y=Math.max(0,Math.round(y));w=Math.max(1,Math.min(src.width-x,Math.round(w)));h=Math.max(1,Math.min(src.height-y,Math.round(h)));var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(src,x,y,w,h,0,0,w,h);return c}
+function enhance(src,contrast,threshold,scale){var out=document.createElement('canvas');out.width=Math.max(1,Math.round(src.width*scale));out.height=Math.max(1,Math.round(src.height*scale));var ctx=out.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,out.width,out.height);var im=ctx.getImageData(0,0,out.width,out.height),d=im.data;for(var i=0;i<d.length;i+=4){var y=.299*d[i]+.587*d[i+1]+.114*d[i+2];var v=(y-128)*contrast+128;if(threshold!==null)v=v<threshold?0:255;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v}ctx.putImageData(im,0,0);return out}
 
-    // Only if OCR cannot find digits, try the physical barcode briefly.
-    setScanStatus('STAGE 3/4 — OCR EMPTY • TRYING BARCODE FALLBACK…');
-    $('captureHelp').textContent='Printed number not found — trying one barcode fallback';
-    const contrast=enhanceCanvas(raw,2.0,null,1.25);
-    let b=null;
-    try{b=await withTimeout(zxingRead(contrast),2500,'ZXing fallback')}catch(e){}
-    if(!b)b=await quaggaRead(contrast);
-    if(b){setScanStatus('STAGE 4/4 — BARCODE FOUND ✓');showConfirm({...b,agreement:1,confidence:0});return}
+// Find the bright/tan factory label on a dark tire using a low-resolution connected-component pass.
+function detectLabel(src){var max=520,sc=Math.min(1,max/src.width),sw=Math.max(1,Math.round(src.width*sc)),sh=Math.max(1,Math.round(src.height*sc)),sm=document.createElement('canvas');sm.width=sw;sm.height=sh;var cx=sm.getContext('2d',{willReadFrequently:true});cx.drawImage(src,0,0,sw,sh);var im=cx.getImageData(0,0,sw,sh),d=im.data,N=sw*sh,mask=new Uint8Array(N),sum=0;
+ for(var i=0,p=0;i<d.length;i+=4,p++){var r=d[i],g=d[i+1],b=d[i+2],lum=.299*r+.587*g+.114*b;sum+=lum}
+ var mean=sum/N,cut=Math.max(72,mean+24);
+ for(var j=0,p2=0;j<d.length;j+=4,p2++){var r2=d[j],g2=d[j+1],b2=d[j+2],lum2=.299*r2+.587*g2+.114*b2;var mx=Math.max(r2,g2,b2),mn=Math.min(r2,g2,b2),sat=mx-mn;var warm=(r2>75&&g2>65&&r2>b2*.82&&g2>b2*.72);var pale=(lum2>145&&sat<90);if(lum2>cut&&(warm||pale))mask[p2]=1}
+ var seen=new Uint8Array(N),best=null,qx=new Int32Array(N),qy=new Int32Array(N);
+ for(var yy=1;yy<sh-1;yy+=2){for(var xx=1;xx<sw-1;xx+=2){var idx=yy*sw+xx;if(!mask[idx]||seen[idx])continue;var head=0,tail=0;qx[tail]=xx;qy[tail++]=yy;seen[idx]=1;var minx=xx,maxx=xx,miny=yy,maxy=yy,count=0;while(head<tail){var x=qx[head],y=qy[head++];count++;if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y;for(var dy=-2;dy<=2;dy+=2)for(var dx=-2;dx<=2;dx+=2){if(!dx&&!dy)continue;var nx=x+dx,ny=y+dy;if(nx<0||nx>=sw||ny<0||ny>=sh)continue;var ni=ny*sw+nx;if(mask[ni]&&!seen[ni]){seen[ni]=1;qx[tail]=nx;qy[tail++]=ny}}}
+ var bw=maxx-minx+1,bh=maxy-miny+1,ratio=bw/Math.max(1,bh),area=bw*bh,fill=count/Math.max(1,(area/4));if(ratio>2.0&&ratio<12&&area>sw*sh*.003&&fill>.06){var score=area*(1+Math.min(6,ratio)/6);if(!best||score>best.score)best={minx:minx,maxx:maxx,miny:miny,maxy:maxy,score:score}}}}
+ if(!best){return cropCanvas(src,src.width*.08,src.height*.18,src.width*.84,src.height*.64)}
+ var padX=(best.maxx-best.minx)*.08,padY=(best.maxy-best.miny)*.20,x=(best.minx-padX)/sc,y=(best.miny-padY)/sc,w=(best.maxx-best.minx+2*padX)/sc,h=(best.maxy-best.miny+2*padY)/sc;return cropCanvas(src,x,y,w,h)
+}
 
-    setScanStatus('STAGE 4/4 — NO NUMBER FOUND');
-    $('captureHelp').textContent='No 8-digit number found. Tap RETAKE and fill the purple box with ONLY the printed digits.';
-  }catch(e){
-    console.error(e);setScanStatus(`FAILED — ${e.message||e}`);$('captureHelp').textContent='Processing failed. Send me a screenshot of this exact message.';
-  }finally{analyzing=false;$('captureBtn').disabled=false}
+function numberBand(label){return cropCanvas(label,label.width*.10,label.height*.46,label.width*.80,label.height*.50)}
+
+// Detect narrow vertical structural splits by looking for dark columns that continue into the
+// quiet bottom margin, where printed digits should not exist. Produce a second OCR image with
+// those columns whitened. The original image is ALWAYS retained as an independent vote.
+function crackMask(number,label){var n=copyCanvas(number),ctx=n.getContext('2d',{willReadFrequently:true}),im=ctx.getImageData(0,0,n.width,n.height),d=im.data,w=n.width,h=n.height;
+ var col=new Float32Array(w),graySum=0;for(var i=0;i<d.length;i+=4)graySum+=(d[i]+d[i+1]+d[i+2])/3;var mean=graySum/(w*h),thr=Math.max(45,mean-55);
+ var y0=Math.floor(h*.64);for(var x=0;x<w;x++){var dark=0,total=0;for(var y=y0;y<h;y++){var k=(y*w+x)*4,g=(d[k]+d[k+1]+d[k+2])/3;if(g<thr)dark++;total++}col[x]=dark/Math.max(1,total)}
+ var runs=[],s=-1;for(var x2=0;x2<=w;x2++){var on=x2<w&&col[x2]>.28;if(on&&s<0)s=x2;if(!on&&s>=0){var rw=x2-s;if(rw>=1&&rw<=Math.max(16,w*.045)){var mid=(s+x2)/2;if(mid>w*.16&&mid<w*.84)runs.push([Math.max(0,s-3),Math.min(w,x2+3)])}s=-1}}
+ for(var r=0;r<runs.length;r++){var a=runs[r][0],b=runs[r][1];for(var yy=0;yy<h;yy++){for(var xx=a;xx<b;xx++){var kk=(yy*w+xx)*4;d[kk]=d[kk+1]=d[kk+2]=255}}}
+ ctx.putImageData(im,0,0);n._cracks=runs;return n}
+
+function timeout(p,ms){return Promise.race([p,new Promise(function(_,reject){setTimeout(function(){reject(new Error('timeout'))},ms)})])}
+async function getWorker(){if(ocrWorker)return ocrWorker;if(!window.Tesseract)throw new Error('OCR library did not load');ocrWorker=await timeout(Tesseract.createWorker('eng',1,{logger:function(m){if(m&&m.status&&typeof m.progress==='number')setStatus(String(m.status).toUpperCase(),'',40+Math.round(m.progress*25))}}),30000);await ocrWorker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});return ocrWorker}
+async function ocrOne(c,label,family){try{var worker=await getWorker(),r=await timeout(worker.recognize(c),15000),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0,code=normalizeOCR(txt);return code?{code:code,confidence:conf||0,label:label,family:family}:null}catch(e){return null}}
+async function zxing(c){if(!window.ZXingBrowser)return null;try{var rd=new ZXingBrowser.BrowserMultiFormatReader(),r=await timeout(rd.decodeFromCanvas(c),3500),d=digitsOnly(r&&r.getText?r.getText():r&&r.text?r.text:r);if(d.length===EXPECTED_LEN)return {code:d,engine:'ZXING'}}catch(e){}return null}
+function quagga(c){return timeout(new Promise(function(resolve){if(!window.Quagga){resolve(null);return}try{Quagga.decodeSingle({src:c.toDataURL('image/jpeg',.96),locate:true,numOfWorkers:0,inputStream:{size:1800,singleChannel:false},locator:{halfSample:false,patchSize:'small'},decoder:{readers:['code_128_reader','code_39_reader','code_93_reader','i2of5_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader'],multiple:false}},function(r){var d=digitsOnly(r&&r.codeResult?r.codeResult.code:'');resolve(d.length===EXPECTED_LEN?{code:d,engine:'QUAGGA'}:null)})}catch(e){resolve(null)}}),4500).catch(function(){return null})}
+
+function choose(barcodes,ocrs){var bc=barcodes.filter(Boolean),oc=ocrs.filter(Boolean),i,j;
+ // Two independent barcode engines agree.
+ if(bc.length>=2&&bc[0].code===bc[1].code)return {code:bc[0].code,reason:'two barcode engines agree'};
+ // Barcode plus OCR agreement is strongest when a cracked barcode is still decodable.
+ for(i=0;i<bc.length;i++)for(j=0;j<oc.length;j++)if(bc[i].code===oc[j].code)return {code:bc[i].code,reason:bc[i].engine+' + OCR agree'};
+ // OCR must repeat exactly across at least three treatments, and must include both original and crack-masked families.
+ var map={};for(i=0;i<oc.length;i++){var k=oc[i].code;if(!map[k])map[k]={n:0,f:{},best:0};map[k].n++;map[k].f[oc[i].family]=1;map[k].best=Math.max(map[k].best,oc[i].confidence||0)}
+ var keys=Object.keys(map).sort(function(a,b){return map[b].n-map[a].n});if(keys.length){var m=map[keys[0]],families=Object.keys(m.f).length;if(m.n>=3&&families>=2)return {code:keys[0],reason:m.n+' exact OCR reads agree across original + crack-masked images'}}
+ return null}
+function renderHistory(){var h=$('history');if(!history.length){h.innerHTML='<div class="reason">No tires collected yet.</div>';return}var s='';for(var i=0;i<history.length;i++)s+='<div class="row"><span class="id">'+history[i].code+'</span><span class="time">'+history[i].time+'</span></div>';h.innerHTML=s}
+function accept(code,why){resultEl.textContent=code;reasonEl.textContent='Accepted automatically: '+why+'.';setStatus('ACCEPTED '+code,'ok',100);history.unshift({code:code,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});renderHistory();retakeBtn.style.display='none';try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}setTimeout(function(){working=false;scanBtn.disabled=false;scanBtn.textContent='📸 SHOOT NEXT TIRE'},450)}
+function fail(msg){resultEl.textContent='NO READ';reasonEl.textContent=msg;setStatus('NOT ACCEPTED — RETAKE','bad',100);retakeBtn.style.display='block';working=false;scanBtn.disabled=false;scanBtn.textContent='📸 SHOOT TIRE LABEL'}
+function debugCanv(src,dst){dst.width=src.width;dst.height=src.height;dst.getContext('2d').drawImage(src,0,0)}
+
+async function analyzeFile(file){if(working)return;working=true;scanBtn.disabled=true;scanBtn.textContent='READING…';retakeBtn.style.display='none';resultEl.textContent='…';reasonEl.textContent='Analyzing high-resolution still photo.';setStatus('OPENING PHOTO','',8);var dbg=[];
+ try{var im=await loadImage(file),full=canvasFromImage(im,2200);setStatus('FINDING FACTORY LABEL','',18);var label=detectLabel(full),num=numberBand(label),masked=crackMask(num,label);debugCanv(label,$('labelCanvas'));debugCanv(masked,$('numberCanvas'));dbg.push('photo '+full.width+'x'+full.height,'label '+label.width+'x'+label.height,'crack runs '+JSON.stringify(masked._cracks||[]));
+ setStatus('CHECKING BARCODE','',28);var bc1=await zxing(label),bc2=await quagga(label);dbg.push('barcode '+JSON.stringify([bc1,bc2]));
+ setStatus('READING PRINTED DIGITS','',38);var variants=[
+  ['orig gray',enhance(num,1.45,null,3.0),'original'],['orig strong',enhance(num,2.0,null,3.0),'original'],['orig bw125',enhance(num,1.15,125,3.0),'original'],['orig bw150',enhance(num,1.15,150,3.0),'original'],
+  ['masked gray',enhance(masked,1.45,null,3.0),'masked'],['masked strong',enhance(masked,2.0,null,3.0),'masked'],['masked bw125',enhance(masked,1.15,125,3.0),'masked'],['masked bw150',enhance(masked,1.15,150,3.0),'masked']
+ ],ocrs=[];
+ for(var i=0;i<variants.length;i++){setStatus('OCR PASS '+(i+1)+' / '+variants.length,'',45+Math.round(i/variants.length*45));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r);var early=choose([bc1,bc2],ocrs);if(early){dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(early.code,early.reason);return}}
+ dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');var chosen=choose([bc1,bc2],ocrs);if(chosen)accept(chosen.code,chosen.reason);else fail('The readers did not agree strongly enough. No tire was collected. Shoot it again closer and level.')
+ }catch(e){$('debugText').textContent=dbg.join('\n')+'\nERROR '+(e&&e.message?e.message:e);fail('Reader error. Retake the photo. First use requires an internet connection so the OCR engine can load.')}
 }
-async function captureAndRead(){
-  if(analyzing)return;setScanStatus('STAGE 1/4 — CAPTURING…');$('captureHelp').textContent='Capturing full-resolution frame…';const full=captureFullFrame();if(!full){setScanStatus('FAILED — CAMERA FRAME NOT READY');toast('Camera is not ready yet');return}capturedFull=full;capturedCrop=cropTargetFromFull(full);frameCount++;freezePreview(full);setScanStatus(`STAGE 1/4 — CAPTURED ${capturedCrop.width}×${capturedCrop.height} ✓`);await new Promise(r=>setTimeout(r,120));await analyzeCapture()
-}
-async function openScanner(){
-  if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Camera requires HTTPS hosting');return}
-  if(!window.ZXingBrowser&&!window.Quagga&&!window.Tesseract){toast('Scanner engines not loaded — connect to internet once');return}
-  $('scanner').classList.add('open');accepted=false;analyzing=false;capturedFull=capturedCrop=null;$('confirmCard').classList.remove('show');unfreezePreview();updateDebug('STARTING CAMERA');
-  try{cameraStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:3840,min:1280},height:{ideal:2160,min:720}}});$('video').srcObject=cameraStream;await $('video').play();await tuneCamera();const v=$('video');setScanStatus(`CAMERA ${v.videoWidth}×${v.videoHeight} — READY TO CAPTURE`)}catch(e){console.error(e);toast('Camera unavailable. Check Safari camera permission.');closeScanner()}
-}
-function closeScanner(){try{if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop())}catch(e){}cameraStream=null;try{$('video').srcObject=null}catch(e){}reader=null;accepted=false;analyzing=false;capturedFull=capturedCrop=null;$('confirmCard').classList.remove('show');$('frozenPreview').classList.remove('show');$('scanner').classList.remove('open')}
-function acceptScan(code){accepted=true;$('flash').textContent='✓ SCAN COMPLETE\n'+code;$('flash').style.whiteSpace='pre-line';$('flash').style.display='flex';if(navigator.vibrate)navigator.vibrate([80,40,120]);setTimeout(()=>{$('flash').style.display='none';closeScanner();loadRecord(code)},650)}
-$('captureBtn').onclick=captureAndRead;$('retakeBtn').onclick=unfreezePreview;$('confirmUse').onclick=()=>{const c=cleanDigits($('confirmInput').value);if(/^\d{6,12}$/.test(c)){$('confirmCard').classList.remove('show');acceptScan(c)}else toast('Check the tire number')};$('confirmAgain').onclick=unfreezePreview;
-$('scan').onclick=openScanner;$('closeScan').onclick=closeScanner;$('manualUse').onclick=()=>{const c=$('manualCode').value.trim();if(/^\d{6,12}$/.test(c))acceptScan(c);else toast('Enter the barcode number')};
-$('save').onclick=()=>{const code=$('barcode').value.trim();if(!code){toast('Scan a tire first');return}const raw=localStorage.getItem(key(code));const old=raw?JSON.parse(raw):{newDate:$('newDate').value||today(),lapTotal:0,heatCycles:0,history:[]};const session={date:today(),laps,coldPsi:$('coldPsi').value,hotPsi:$('hotPsi').value,coldCirc:$('coldCirc').value,hotCirc:$('hotCirc').value,compound:$('compound').value,corner:$('corner').value};const r={newDate:old.newDate,recentDate:today(),compound:$('compound').value,corner:$('corner').value,lapTotal:(old.lapTotal||0)+laps,heatCycles:(old.heatCycles||0)+(laps>0?1:0),status:$('status').value,notes:$('notes').value,history:[session,...(old.history||[])].slice(0,100)};localStorage.setItem(key(code),JSON.stringify(r));lapTotal=r.lapTotal;heatCycles=r.heatCycles;$('lapTotal').textContent=lapTotal;$('heatCycles').textContent=heatCycles;$('recentDate').value=r.recentDate;laps=0;$('lapsVal').textContent=0;toast('Tire saved on this iPad')};
-function updateOnline(){const b=$('syncBadge');b.textContent=navigator.onLine?'● ONLINE / OFFLINE READY':'● OFFLINE — SAVING TO iPAD';b.style.color=navigator.onLine?'#8df59a':'#ffd166'}window.addEventListener('online',updateOnline);window.addEventListener('offline',updateOnline);updateOnline();updateDelta();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(console.error);
-</script></body></html>
+scanBtn.onclick=function(){if(!working){input.value='';input.click()}};retakeBtn.onclick=function(){input.value='';input.click()};input.onchange=function(){if(input.files&&input.files[0])analyzeFile(input.files[0])};
+// Five taps on the title reveals debug canvases without cluttering race-day use.
+var taps=0,timer=null;document.querySelector('.title').onclick=function(){taps++;clearTimeout(timer);timer=setTimeout(function(){taps=0},1500);if(taps>=5){$('debug').classList.toggle('show');taps=0}};
+renderHistory();
+})();
+</script>
+</body>
+</html>
