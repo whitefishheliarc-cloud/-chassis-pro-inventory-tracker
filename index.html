@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#08080b">
-<title>CHASSIS PRO Tire Reader V11</title>
+<title>CHASSIS PRO Tire Reader V12</title>
 <script src="https://unpkg.com/@zxing/browser@0.1.1/umd/zxing-browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.12.1/dist/quagga.min.js"></script>
 
@@ -29,7 +29,7 @@ input[type=file]{position:fixed;left:-9999px;top:-9999px;opacity:0}
 <div class="app">
   <div class="brand">CHASSIS PRO</div>
   <div class="title">TIRE NUMBER READER</div>
-  <div class="sub">V11 iPad-compatible crack-aware still-photo reader. Shoot the factory label close and centered. The app only accepts an 8-digit number when independent reads agree.</div>
+  <div class="sub">V12 segmented-digit still-photo reader. Shoot the factory label close and centered. The app only accepts an 8-digit number when independent reads agree.</div>
 
   <button id="scanBtn" class="scanBtn">📸 SHOOT TIRE LABEL</button>
   <input id="cameraInput" type="file" accept="image/*" capture="environment">
@@ -73,6 +73,23 @@ function copyCanvas(src){var c=document.createElement('canvas');c.width=src.widt
 function cropCanvas(src,x,y,w,h){x=Math.max(0,Math.round(x));y=Math.max(0,Math.round(y));w=Math.max(1,Math.min(src.width-x,Math.round(w)));h=Math.max(1,Math.min(src.height-y,Math.round(h)));var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(src,x,y,w,h,0,0,w,h);return c}
 function enhance(src,contrast,threshold,scale){var out=document.createElement('canvas');out.width=Math.max(1,Math.round(src.width*scale));out.height=Math.max(1,Math.round(src.height*scale));var ctx=out.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,out.width,out.height);var im=ctx.getImageData(0,0,out.width,out.height),d=im.data;for(var i=0;i<d.length;i+=4){var y=.299*d[i]+.587*d[i+1]+.114*d[i+2];var v=(y-128)*contrast+128;if(threshold!==null)v=v<threshold?0:255;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v}ctx.putImageData(im,0,0);return out}
 
+// V12: isolate the printed-number row before OCR. Structural cracks are NOT erased.
+function digitRegion(number){var w=number.width,h=number.height,ctx=number.getContext('2d',{willReadFrequently:true}),im=ctx.getImageData(0,0,w,h),d=im.data;
+ var x0=Math.floor(w*.10),x1=Math.ceil(w*.90),y0=Math.floor(h*.10),y1=Math.ceil(h*.78),sum=0,n=0;
+ for(var y=y0;y<y1;y++)for(var x=x0;x<x1;x++){var k=(y*w+x)*4;sum+=(d[k]+d[k+1]+d[k+2])/3;n++}
+ var mean=sum/Math.max(1,n),thr=Math.max(70,Math.min(145,mean-42)),rows=new Float32Array(h);
+ for(var yy=y0;yy<y1;yy++){var c=0;for(var xx=x0;xx<x1;xx++){var kk=(yy*w+xx)*4,g=(d[kk]+d[kk+1]+d[kk+2])/3;if(g<thr)c++}rows[yy]=c}
+ var win=Math.max(24,Math.floor(h*.30)),bestY=y0,best=-1;for(var sy=y0;sy+win<y1;sy++){var sc=0;for(var ry=sy;ry<sy+win;ry++)sc+=rows[ry];if(sc>best){best=sc;bestY=sy}}
+ var ry0=Math.max(y0,bestY-Math.floor(h*.06)),ry1=Math.min(y1,bestY+win+Math.floor(h*.06)),cols=new Float32Array(w);
+ for(var cx=x0;cx<x1;cx++){var cc=0;for(var cy=ry0;cy<ry1;cy++){var q=(cy*w+cx)*4,g2=(d[q]+d[q+1]+d[q+2])/3;if(g2<thr)cc++}cols[cx]=cc/Math.max(1,ry1-ry0)}
+ var active=[];for(var ax=x0;ax<x1;ax++)if(cols[ax]>.08)active.push(ax);var rx0=x0,rx1=x1;
+ if(active.length>20){var lo=active[Math.floor(active.length*.03)],hi=active[Math.floor(active.length*.97)];if(hi-lo>w*.40){rx0=Math.max(x0,lo-Math.floor(w*.025));rx1=Math.min(x1,hi+Math.floor(w*.025))}}
+ var out=cropCanvas(number,rx0,ry0,rx1-rx0,ry1-ry0);out._region=[rx0,ry0,rx1,ry1];return out}
+function splitEight(region){var cells=[],pad=Math.max(3,Math.round(region.width*.008)),cw=region.width/EXPECTED_LEN;for(var i=0;i<EXPECTED_LEN;i++){var x=Math.max(0,Math.round(i*cw-pad)),x2=Math.min(region.width,Math.round((i+1)*cw+pad));cells.push(cropCanvas(region,x,0,x2-x,region.height))}return cells}
+function normalizeDigit(v){var t=String(v||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|!]/g,'1').replace(/[SZ]/g,'5').replace(/B/g,'8').replace(/G/g,'6'),d=digitsOnly(t);return d.length?d.charAt(0):''}
+async function ocrDigit(c,label){try{var worker=await getWorker();await worker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'10',preserve_interword_spaces:'0'});var r=await timeout(worker.recognize(c),18000,'digit OCR'),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0;return {digit:normalizeDigit(txt),raw:String(txt||'').trim(),confidence:conf||0,label:label,error:''}}catch(e){return {digit:'',raw:'',confidence:0,label:label,error:e&&e.message?e.message:String(e)}}}
+async function segmentedRead(region,label,threshold){var cells=splitEight(region),out='',parts=[],conf=0;for(var i=0;i<cells.length;i++){setStatus('DIGIT '+(i+1)+' / 8','',58+Math.round(i/8*28));var v=enhance(cells[i],1.20,threshold,4.0),r=await ocrDigit(v,label+' d'+(i+1));parts.push(r);if(!r.digit)return {code:'',confidence:0,label:label,parts:parts};out+=r.digit;conf+=r.confidence||0}return {code:out,confidence:conf/8,label:label,parts:parts}}
+
 // Find the bright/tan factory label on a dark tire using a low-resolution connected-component pass.
 function detectLabel(src){var max=520,sc=Math.min(1,max/src.width),sw=Math.max(1,Math.round(src.width*sc)),sh=Math.max(1,Math.round(src.height*sc)),sm=document.createElement('canvas');sm.width=sw;sm.height=sh;var cx=sm.getContext('2d',{willReadFrequently:true});cx.drawImage(src,0,0,sw,sh);var im=cx.getImageData(0,0,sw,sh),d=im.data,N=sw*sh,mask=new Uint8Array(N),sum=0;
  for(var i=0,p=0;i<d.length;i+=4,p++){var r=d[i],g=d[i+1],b=d[i+2],lum=.299*r+.587*g+.114*b;sum+=lum}
@@ -102,7 +119,7 @@ function iosMajor(){var m=navigator.userAgent.match(/OS (\d+)_/i);return m?parse
 function loadScript(src){return new Promise(function(resolve,reject){var x=document.createElement('script');x.src=src;x.async=true;x.onload=resolve;x.onerror=function(){reject(new Error('Could not load '+src))};document.head.appendChild(x)})}
 async function loadOCREngine(){if(window.Tesseract)return;var major=iosMajor();ocrEngine=major<=16?'Tesseract 4 compatibility':'Tesseract 5';var src=major<=16?'https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js':'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';setStatus('LOADING '+ocrEngine.toUpperCase(),'',12);await timeout(loadScript(src),30000,'OCR script load')}
 async function getWorker(){if(ocrWorker)return ocrWorker;await loadOCREngine();if(!window.Tesseract)throw new Error('OCR library did not load');var log=function(m){if(m&&m.status&&typeof m.progress==='number')setStatus(String(m.status).toUpperCase(),'',35+Math.round(m.progress*30))};var major=iosMajor();try{if(major<=16){var w=Tesseract.createWorker({logger:log});await timeout(w.load(),45000,'OCR worker load');await timeout(w.loadLanguage('eng'),90000,'OCR language load');await timeout(w.initialize('eng'),60000,'OCR initialize');ocrWorker=w}else{ocrWorker=await timeout(Tesseract.createWorker('eng',1,{logger:log,workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',langPath:'https://tessdata.projectnaptha.com/4.0.0',corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1/tesseract-core-lstm.wasm.js'}),90000,'OCR worker init')}await ocrWorker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});ocrInitError='';return ocrWorker}catch(e){ocrWorker=null;ocrInitError=e&&e.message?e.message:String(e);throw e}}
-async function ocrOne(c,label,family){try{var worker=await getWorker(),r=await timeout(worker.recognize(c),30000,'OCR recognize'),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0,code=normalizeOCR(txt);return {code:code||'',raw:String(txt||'').trim(),confidence:conf||0,label:label,family:family,error:''}}catch(e){return {code:'',raw:'',confidence:0,label:label,family:family,error:e&&e.message?e.message:String(e)}}}
+async function ocrOne(c,label,family){try{var worker=await getWorker();await worker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7',preserve_interword_spaces:'0'});var r=await timeout(worker.recognize(c),30000,'OCR recognize'),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0,code=normalizeOCR(txt);return {code:code||'',raw:String(txt||'').trim(),confidence:conf||0,label:label,family:family,error:''}}catch(e){return {code:'',raw:'',confidence:0,label:label,family:family,error:e&&e.message?e.message:String(e)}}}
 async function zxing(c){if(!window.ZXingBrowser)return null;try{var rd=new ZXingBrowser.BrowserMultiFormatReader(),r=await timeout(rd.decodeFromCanvas(c),3500),d=digitsOnly(r&&r.getText?r.getText():r&&r.text?r.text:r);if(d.length===EXPECTED_LEN)return {code:d,engine:'ZXING'}}catch(e){}return null}
 function quagga(c){return timeout(new Promise(function(resolve){if(!window.Quagga){resolve(null);return}try{Quagga.decodeSingle({src:c.toDataURL('image/jpeg',.96),locate:true,numOfWorkers:0,inputStream:{size:1800,singleChannel:false},locator:{halfSample:false,patchSize:'small'},decoder:{readers:['code_128_reader','code_39_reader','code_93_reader','i2of5_reader','ean_reader','ean_8_reader','upc_reader','upc_e_reader'],multiple:false}},function(r){var d=digitsOnly(r&&r.codeResult?r.codeResult.code:'');resolve(d.length===EXPECTED_LEN?{code:d,engine:'QUAGGA'}:null)})}catch(e){resolve(null)}}),4500).catch(function(){return null})}
 
@@ -111,9 +128,9 @@ function choose(barcodes,ocrs){var bc=barcodes.filter(Boolean),oc=ocrs.filter(fu
  if(bc.length>=2&&bc[0].code===bc[1].code)return {code:bc[0].code,reason:'two barcode engines agree'};
  // Barcode plus OCR agreement is strongest when a cracked barcode is still decodable.
  for(i=0;i<bc.length;i++)for(j=0;j<oc.length;j++)if(bc[i].code===oc[j].code)return {code:bc[i].code,reason:bc[i].engine+' + OCR agree'};
- // OCR must repeat exactly across at least three treatments, and must include both original and crack-masked families.
+ // Full-line OCR may accept only when the exact same 8 digits repeat across three independent treatments.
  var map={};for(i=0;i<oc.length;i++){var k=oc[i].code;if(!map[k])map[k]={n:0,f:{},best:0};map[k].n++;map[k].f[oc[i].family]=1;map[k].best=Math.max(map[k].best,oc[i].confidence||0)}
- var keys=Object.keys(map).sort(function(a,b){return map[b].n-map[a].n});if(keys.length){var m=map[keys[0]],families=Object.keys(m.f).length;if(m.n>=3&&families>=2)return {code:keys[0],reason:m.n+' exact OCR reads agree across original + crack-masked images'}}
+ var keys=Object.keys(map).sort(function(a,b){return map[b].n-map[a].n});if(keys.length){var m=map[keys[0]],families=Object.keys(m.f).length;if(m.n>=3)return {code:keys[0],reason:m.n+' exact full-line OCR treatments agree'}}
  return null}
 function renderHistory(){var h=$('history');if(!history.length){h.innerHTML='<div class="reason">No tires collected yet.</div>';return}var s='';for(var i=0;i<history.length;i++)s+='<div class="row"><span class="id">'+history[i].code+'</span><span class="time">'+history[i].time+'</span></div>';h.innerHTML=s}
 function accept(code,why){resultEl.textContent=code;reasonEl.textContent='Accepted automatically: '+why+'.';setStatus('ACCEPTED '+code,'ok',100);history.unshift({code:code,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});renderHistory();retakeBtn.style.display='none';try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}setTimeout(function(){working=false;scanBtn.disabled=false;scanBtn.textContent='📸 SHOOT NEXT TIRE'},450)}
@@ -121,14 +138,15 @@ function fail(msg){resultEl.textContent='NO READ';reasonEl.textContent=msg;setSt
 function debugCanv(src,dst){dst.width=src.width;dst.height=src.height;dst.getContext('2d').drawImage(src,0,0)}
 
 async function analyzeFile(file){if(working)return;working=true;scanBtn.disabled=true;scanBtn.textContent='READING…';retakeBtn.style.display='none';resultEl.textContent='…';reasonEl.textContent='Analyzing high-resolution still photo.';setStatus('OPENING PHOTO','',8);var dbg=[];
- try{var im=await loadImage(file),full=canvasFromImage(im,2200);setStatus('FINDING FACTORY LABEL','',18);var label=detectLabel(full),num=numberBand(label),masked=crackMask(num,label);debugCanv(label,$('labelCanvas'));debugCanv(masked,$('numberCanvas'));dbg.push('photo '+full.width+'x'+full.height,'label '+label.width+'x'+label.height,'crack runs '+JSON.stringify(masked._cracks||[]));
+ try{var im=await loadImage(file),full=canvasFromImage(im,2200);setStatus('FINDING FACTORY LABEL','',18);var label=detectLabel(full),num=numberBand(label),region=digitRegion(num),masked=crackMask(num,label);debugCanv(label,$('labelCanvas'));debugCanv(region,$('numberCanvas'));dbg.push('photo '+full.width+'x'+full.height,'label '+label.width+'x'+label.height,'digit region '+JSON.stringify(region._region||[]),'crack candidates '+JSON.stringify(masked._cracks||[])+' (debug only; NOT erased in V12)');
  setStatus('CHECKING BARCODE','',28);var bc1=await zxing(label),bc2=await quagga(label);dbg.push('barcode '+JSON.stringify([bc1,bc2]));
- setStatus('READING PRINTED DIGITS','',38);var variants=[
-  ['orig gray',enhance(num,1.45,null,3.0),'original'],['orig strong',enhance(num,2.0,null,3.0),'original'],['orig bw125',enhance(num,1.15,125,3.0),'original'],['orig bw150',enhance(num,1.15,150,3.0),'original'],
-  ['masked gray',enhance(masked,1.45,null,3.0),'masked'],['masked strong',enhance(masked,2.0,null,3.0),'masked'],['masked bw125',enhance(masked,1.15,125,3.0),'masked'],['masked bw150',enhance(masked,1.15,150,3.0),'masked']
- ],ocrs=[];
- for(var i=0;i<variants.length;i++){setStatus('OCR PASS '+(i+1)+' / '+variants.length,'',45+Math.round(i/variants.length*45));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r);var early=choose([bc1,bc2],ocrs);if(early){dbg.push('ocr engine '+(ocrEngine||'initialized'));dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(early.code,early.reason);return}}
- dbg.push('ocr engine '+(ocrEngine||'not initialized'));if(ocrInitError)dbg.push('ocr init error '+ocrInitError);dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');var chosen=choose([bc1,bc2],ocrs);if(chosen)accept(chosen.code,chosen.reason);else fail('The readers did not agree strongly enough. No tire was collected. Shoot it again closer and level.')
+ setStatus('READING PRINTED DIGITS','',38);var variants=[['region gray',enhance(region,1.45,null,3.2),'region'],['region strong',enhance(region,2.0,null,3.2),'region'],['region bw120',enhance(region,1.15,120,3.2),'region'],['region bw145',enhance(region,1.15,145,3.2),'region']],ocrs=[];
+ for(var i=0;i<variants.length;i++){setStatus('LINE OCR '+(i+1)+' / '+variants.length,'',40+Math.round(i/variants.length*18));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r)}
+ var seg1=await segmentedRead(region,'segments bw120',120),seg2=await segmentedRead(region,'segments bw145',145);dbg.push('segmented '+JSON.stringify([seg1,seg2]));
+ var segCode='';if(seg1.code&&seg2.code&&seg1.code===seg2.code&&Math.min(seg1.confidence,seg2.confidence)>=45)segCode=seg1.code;
+ if(segCode){for(var bi=0;bi<[bc1,bc2].length;bi++){var bb=[bc1,bc2][bi];if(bb&&bb.code===segCode){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(segCode,'segmented digits + '+bb.engine+' agree');return}}
+  var lineAgree=0;for(var oi=0;oi<ocrs.length;oi++)if(ocrs[oi].code===segCode)lineAgree++;if(lineAgree>=1){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(segCode,'two segmented passes + full-line OCR agree');return}}
+ var chosen=choose([bc1,bc2],ocrs);dbg.push('ocr engine '+(ocrEngine||'not initialized'));if(ocrInitError)dbg.push('ocr init error '+ocrInitError);dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');if(chosen)accept(chosen.code,chosen.reason);else fail('No safe agreement. V12 refused the read rather than inventing a tire number.')
  }catch(e){$('debugText').textContent=dbg.join('\n')+'\nERROR '+(e&&e.message?e.message:e);fail('Reader error. Retake the photo. First use requires an internet connection so the OCR engine can load.')}
 }
 scanBtn.onclick=function(){if(!working){input.value='';input.click()}};retakeBtn.onclick=function(){input.value='';input.click()};input.onchange=function(){if(input.files&&input.files[0])analyzeFile(input.files[0])};
