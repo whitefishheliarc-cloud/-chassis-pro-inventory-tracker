@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#08080b">
-<title>CHASSIS PRO Tire Reader V13</title>
+<title>CHASSIS PRO Tire Reader V14</title>
 <script src="https://unpkg.com/@zxing/browser@0.1.1/umd/zxing-browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.12.1/dist/quagga.min.js"></script>
 
@@ -29,7 +29,7 @@ input[type=file]{position:fixed;left:-9999px;top:-9999px;opacity:0}
 <div class="app">
   <div class="brand">CHASSIS PRO</div>
   <div class="title">TIRE NUMBER READER</div>
-  <div class="sub">V13 geometry-aligned digit reader. It finds the eight printed character lanes from the ink spacing, then requires repeated agreement before accepting a tire.</div>
+  <div class="sub">V14 factory-sequence digit reader. It locates the eight-digit print sequence before OCR, ignores outlying crack strokes, and requires repeated agreement before accepting a tire.</div>
 
   <button id="scanBtn" class="scanBtn">📸 SHOOT TIRE LABEL</button>
   <input id="cameraInput" type="file" accept="image/*" capture="environment">
@@ -73,32 +73,75 @@ function copyCanvas(src){var c=document.createElement('canvas');c.width=src.widt
 function cropCanvas(src,x,y,w,h){x=Math.max(0,Math.round(x));y=Math.max(0,Math.round(y));w=Math.max(1,Math.min(src.width-x,Math.round(w)));h=Math.max(1,Math.min(src.height-y,Math.round(h)));var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(src,x,y,w,h,0,0,w,h);return c}
 function enhance(src,contrast,threshold,scale){var out=document.createElement('canvas');out.width=Math.max(1,Math.round(src.width*scale));out.height=Math.max(1,Math.round(src.height*scale));var ctx=out.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,out.width,out.height);var im=ctx.getImageData(0,0,out.width,out.height),d=im.data;for(var i=0;i<d.length;i+=4){var y=.299*d[i]+.587*d[i+1]+.114*d[i+2];var v=(y-128)*contrast+128;if(threshold!==null)v=v<threshold?0:255;v=Math.max(0,Math.min(255,v));d[i]=d[i+1]=d[i+2]=v}ctx.putImageData(im,0,0);return out}
 
-// V13: isolate the printed-number row before OCR. Structural cracks are NEVER erased.
-function digitRegion(number){var w=number.width,h=number.height,ctx=number.getContext('2d',{willReadFrequently:true}),im=ctx.getImageData(0,0,w,h),d=im.data;
- var x0=Math.floor(w*.10),x1=Math.ceil(w*.90),y0=Math.floor(h*.10),y1=Math.ceil(h*.78),sum=0,n=0;
- for(var y=y0;y<y1;y++)for(var x=x0;x<x1;x++){var k=(y*w+x)*4;sum+=(d[k]+d[k+1]+d[k+2])/3;n++}
- var mean=sum/Math.max(1,n),thr=Math.max(70,Math.min(145,mean-42)),rows=new Float32Array(h);
- for(var yy=y0;yy<y1;yy++){var c=0;for(var xx=x0;xx<x1;xx++){var kk=(yy*w+xx)*4,g=(d[kk]+d[kk+1]+d[kk+2])/3;if(g<thr)c++}rows[yy]=c}
- var win=Math.max(24,Math.floor(h*.30)),bestY=y0,best=-1;for(var sy=y0;sy+win<y1;sy++){var sc=0;for(var ry=sy;ry<sy+win;ry++)sc+=rows[ry];if(sc>best){best=sc;bestY=sy}}
- var ry0=Math.max(y0,bestY-Math.floor(h*.06)),ry1=Math.min(y1,bestY+win+Math.floor(h*.06)),cols=new Float32Array(w);
- for(var cx=x0;cx<x1;cx++){var cc=0;for(var cy=ry0;cy<ry1;cy++){var q=(cy*w+cx)*4,g2=(d[q]+d[q+1]+d[q+2])/3;if(g2<thr)cc++}cols[cx]=cc/Math.max(1,ry1-ry0)}
- var active=[];for(var ax=x0;ax<x1;ax++)if(cols[ax]>.08)active.push(ax);var rx0=x0,rx1=x1;
- if(active.length>20){var lo=active[Math.floor(active.length*.03)],hi=active[Math.floor(active.length*.97)];if(hi-lo>w*.40){rx0=Math.max(x0,lo-Math.floor(w*.025));rx1=Math.min(x1,hi+Math.floor(w*.025))}}
- var out=cropCanvas(number,rx0,ry0,rx1-rx0,ry1-ry0);out._region=[rx0,ry0,rx1,ry1];return out}
-function columnProfile(region,threshold){var w=region.width,h=region.height,ctx=region.getContext('2d',{willReadFrequently:true}),im=ctx.getImageData(0,0,w,h),d=im.data,p=new Float32Array(w);for(var x=0;x<w;x++){var n=0;for(var y=Math.floor(h*.05);y<Math.ceil(h*.96);y++){var k=(y*w+x)*4,g=(d[k]+d[k+1]+d[k+2])/3;if(g<threshold)n++}p[x]=n/Math.max(1,h*.91)}return p}
-function bestEightGrid(region,threshold){var p=columnProfile(region,threshold),w=region.width,active=[];for(var x=0;x<w;x++)if(p[x]>.055)active.push(x);var lo=Math.floor(w*.03),hi=Math.ceil(w*.97);if(active.length>24){lo=active[Math.floor(active.length*.015)];hi=active[Math.floor(active.length*.985)]}var span=Math.max(w*.48,hi-lo),best=null;
- // Search small left/right adjustments. The correct 8-lane grid should put seven boundaries in low-ink valleys.
- for(var la=-6;la<=6;la++){for(var ra=-6;ra<=6;ra++){var x0=lo+span*la/200,x1=hi+span*ra/200;if(x1-x0<w*.45)continue;var cw=(x1-x0)/8,score=0;for(var b=1;b<8;b++){var bx=Math.round(x0+b*cw),v=0,n=0;for(var q=-2;q<=2;q++){var z=bx+q;if(z>=0&&z<w){v+=p[z];n++}}score+=v/Math.max(1,n)}score+=Math.abs((x1-x0)-span)*.002;if(!best||score<best.score)best={x0:x0,x1:x1,cw:cw,score:score,threshold:threshold}}}
- if(!best)best={x0:lo,x1:hi,cw:(hi-lo)/8,score:999,threshold:threshold};return best}
-function splitEightGrid(region,grid){var cells=[],pad=Math.max(2,Math.round(grid.cw*.10));for(var i=0;i<8;i++){var a=Math.max(0,Math.round(grid.x0+i*grid.cw-pad)),b=Math.min(region.width,Math.round(grid.x0+(i+1)*grid.cw+pad));cells.push(cropCanvas(region,a,0,b-a,region.height))}return cells}
+// V14: keep a tall number strip so the complete digit shapes survive. Structural cracks are NEVER erased.
+function digitRegion(number){
+ var w=number.width,h=number.height;
+ // The factory number lives in the middle/lower part of numberBand. Keep generous top/bottom stroke room.
+ var rx0=Math.floor(w*.035),rx1=Math.ceil(w*.965),ry0=Math.floor(h*.05),ry1=Math.ceil(h*.93);
+ var out=cropCanvas(number,rx0,ry0,rx1-rx0,ry1-ry0);out._region=[rx0,ry0,rx1,ry1];return out
+}
+function columnProfile(region,threshold){
+ var w=region.width,h=region.height,ctx=region.getContext('2d',{willReadFrequently:true}),im=ctx.getImageData(0,0,w,h),d=im.data,p=new Float32Array(w);
+ // Ignore extreme top/bottom where barcode remnants and the magenta stripe can dominate.
+ var y0=Math.floor(h*.10),y1=Math.ceil(h*.78);
+ for(var x=0;x<w;x++){var n=0;for(var y=y0;y<y1;y++){var k=(y*w+x)*4,g=(d[k]+d[k+1]+d[k+2])/3;if(g<threshold)n++}p[x]=n/Math.max(1,y1-y0)}
+ // Smooth just enough to combine strokes within a printed character without turning a narrow crack into a full digit.
+ var q=new Float32Array(w),rad=Math.max(2,Math.round(w*.003));for(var xx=0;xx<w;xx++){var a=0,c=0;for(var z=Math.max(0,xx-rad);z<=Math.min(w-1,xx+rad);z++){a+=p[z];c++}q[xx]=a/Math.max(1,c)}return q
+}
+function factoryGrid(region,threshold){
+ var p=columnProfile(region,threshold),w=region.width,best=null;
+ // Search plausible factory-number widths instead of anchoring to the first/last dark mark.
+ // This lets isolated cracks outside/between the digits lose the geometry vote.
+ var minCW=w*.055,maxCW=w*.105,stepCW=Math.max(2,w*.004),minStart=w*.08,maxStart=w*.32,stepStart=Math.max(2,w*.006);
+ for(var cw=minCW;cw<=maxCW;cw+=stepCW){
+   var span=8*cw;if(span>w*.82)continue;
+   for(var x0=minStart;x0<=maxStart&&x0+span<w*.95;x0+=stepStart){
+     var score=0,valid=0;
+     for(var i=0;i<8;i++){
+       var a=Math.round(x0+i*cw),b=Math.round(x0+(i+1)*cw),innerA=Math.round(a+cw*.16),innerB=Math.round(b-cw*.10),mass=0,mn=999,mx=0;
+       for(var x=innerA;x<innerB&&x<w;x++){mass+=p[x];if(p[x]<mn)mn=p[x];if(p[x]>mx)mx=p[x]}
+       var avg=mass/Math.max(1,innerB-innerA);if(avg>.035)valid++;
+       // Reward each cell containing real ink, but cap the reward so one huge crack cannot dominate.
+       score-=Math.min(.18,avg)*5;
+       // Boundaries should usually fall in gaps between printed digits.
+       if(i<7){var bx=Math.round(x0+(i+1)*cw),bv=0,n=0;for(var q=-3;q<=3;q++){var xx=bx+q;if(xx>=0&&xx<w){bv+=p[xx];n++}}score+=(bv/Math.max(1,n))*8}
+     }
+     // All eight lanes need some ink; regular factory placement is mildly preferred.
+     if(valid<7)score+=5+(7-valid)*2;
+     var center=x0+span/2;score+=Math.abs(center-w*.56)/w*.8;
+     if(!best||score<best.score)best={x0:x0,x1:x0+span,cw:cw,score:score,threshold:threshold,valid:valid}
+   }
+ }
+ if(!best)best={x0:w*.16,x1:w*.84,cw:w*.085,score:999,threshold:threshold,valid:0};return best
+}
+function splitEightFactory(region,grid){
+ var cells=[],boxes=[];for(var i=0;i<8;i++){var a=Math.max(0,Math.round(grid.x0+i*grid.cw-grid.cw*.08)),b=Math.min(region.width,Math.round(grid.x0+(i+1)*grid.cw+grid.cw*.08));cells.push(cropCanvas(region,a,0,b-a,region.height));boxes.push([a,0,b-a,region.height])}cells._boxes=boxes;return cells
+}
 function normalizeDigit(v){var t=String(v||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|!]/g,'1').replace(/[SZ]/g,'5').replace(/B/g,'8').replace(/G/g,'6'),d=digitsOnly(t);return d.length?d.charAt(0):''}
+function paddedDigit(src,threshold){
+ var bw=enhance(src,1.20,threshold,1),w=bw.width,h=bw.height,ctx=bw.getContext('2d',{willReadFrequently:true}),im=ctx.getImageData(0,0,w,h),d=im.data,minx=w,miny=h,maxx=-1,maxy=-1;
+ for(var y=Math.floor(h*.04);y<Math.ceil(h*.90);y++)for(var x=Math.floor(w*.04);x<Math.ceil(w*.96);x++){var k=(y*w+x)*4;if(d[k]<80){if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y}}
+ // If trimming looks suspicious, keep the full lane. Otherwise trim only modestly.
+ var crop=src;if(maxx>minx&&maxy>miny&&(maxx-minx)>w*.10&&(maxy-miny)>h*.20){var px=Math.max(3,(maxx-minx)*.18),py=Math.max(3,(maxy-miny)*.12);crop=cropCanvas(src,minx-px,miny-py,(maxx-minx+1)+2*px,(maxy-miny+1)+2*py)}
+ var scale=4.6,ow=Math.max(120,Math.round(crop.width*scale)),oh=Math.max(180,Math.round(crop.height*scale)),pad=Math.round(Math.max(ow,oh)*.18),out=document.createElement('canvas');out.width=ow+2*pad;out.height=oh+2*pad;var oc=out.getContext('2d');oc.fillStyle='#fff';oc.fillRect(0,0,out.width,out.height);oc.drawImage(enhance(crop,1.30,threshold,scale),pad,pad);return out
+}
 async function ocrDigit(c,label){try{var worker=await getWorker();await worker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'10',preserve_interword_spaces:'0'});var r=await timeout(worker.recognize(c),18000,'digit OCR'),txt=r&&r.data?r.data.text:'',conf=r&&r.data?r.data.confidence:0;return {digit:normalizeDigit(txt),raw:String(txt||'').trim(),confidence:conf||0,label:label,error:''}}catch(e){return {digit:'',raw:'',confidence:0,label:label,error:e&&e.message?e.message:String(e)}}}
-async function segmentedGridRead(region,label,threshold){var grid=bestEightGrid(region,threshold),cells=splitEightGrid(region,grid),out='',parts=[],conf=0;for(var i=0;i<cells.length;i++){setStatus('DIGIT '+(i+1)+' / 8','',58+Math.round(i/8*28));var v=enhance(cells[i],1.30,threshold,4.2),r=await ocrDigit(v,label+' d'+(i+1));parts.push(r);if(!r.digit)return {code:'',confidence:0,label:label,parts:parts,grid:grid};out+=r.digit;conf+=r.confidence||0}return {code:out,confidence:conf/8,label:label,parts:parts,grid:grid}}
-function segmentedConsensus(reads){var exact={},i,j;for(i=0;i<reads.length;i++){var c=reads[i].code;if(c){if(!exact[c])exact[c]={n:0,conf:0};exact[c].n++;exact[c].conf+=reads[i].confidence||0}}var keys=Object.keys(exact).sort(function(a,b){return exact[b].n-exact[a].n});if(keys.length&&exact[keys[0]].n>=3&&exact[keys[0]].conf/exact[keys[0]].n>=38)return {code:keys[0],reason:exact[keys[0]].n+' geometry-aligned segmented reads agree'};
- // Position vote is diagnostic only unless every lane has a strong 3-of-4 majority.
- var code='',minVotes=99,avg=0;for(j=0;j<8;j++){var m={},best='',bn=0,bc=0;for(i=0;i<reads.length;i++){var p=reads[i].parts&&reads[i].parts[j],d=p&&p.digit;if(!d)continue;if(!m[d])m[d]={n:0,conf:0};m[d].n++;m[d].conf+=p.confidence||0;if(m[d].n>bn||(m[d].n===bn&&m[d].conf>bc)){best=d;bn=m[d].n;bc=m[d].conf}}if(!best)return null;code+=best;minVotes=Math.min(minVotes,bn);avg+=bc/Math.max(1,bn)}if(code.length===8&&minVotes>=3&&avg/8>=42)return {code:code,reason:'all 8 digit lanes have a 3-of-4 majority'};return null}
-function drawGridPreview(region,grid,dst){debugCanv(region,dst);var c=dst.getContext('2d');c.save();c.strokeStyle='rgba(255,0,255,.9)';c.lineWidth=Math.max(1,dst.width/350);for(var i=0;i<=8;i++){var x=grid.x0+i*grid.cw;c.beginPath();c.moveTo(x,0);c.lineTo(x,dst.height);c.stroke()}c.restore()}
-
+async function segmentedFactoryRead(region,label,threshold){
+ var grid=factoryGrid(region,threshold),cells=splitEightFactory(region,grid),out='',parts=[],conf=0;
+ for(var i=0;i<cells.length;i++){setStatus('DIGIT '+(i+1)+' / 8','',58+Math.round(i/8*28));var v=paddedDigit(cells[i],threshold),r=await ocrDigit(v,label+' d'+(i+1));parts.push(r);if(!r.digit)return {code:'',confidence:0,label:label,parts:parts,grid:grid};out+=r.digit;conf+=r.confidence||0}
+ return {code:out,confidence:conf/8,label:label,parts:parts,grid:grid}
+}
+function segmentedConsensus(reads){
+ var exact={},i,j;for(i=0;i<reads.length;i++){var c=reads[i].code;if(c){if(!exact[c])exact[c]={n:0,conf:0};exact[c].n++;exact[c].conf+=reads[i].confidence||0}}
+ var keys=Object.keys(exact).sort(function(a,b){return exact[b].n-exact[a].n});if(keys.length&&exact[keys[0]].n>=3)return {code:keys[0],reason:exact[keys[0]].n+' factory-sequence segmented reads agree'};
+ // Per-position vote is allowed only when every one of the eight lanes has at least 3 matching reads.
+ var code='',minVotes=99,avg=0;for(j=0;j<8;j++){var m={},best='',bn=0,bc=0;for(i=0;i<reads.length;i++){var part=reads[i].parts&&reads[i].parts[j],dg=part&&part.digit;if(!dg)continue;if(!m[dg])m[dg]={n:0,conf:0};m[dg].n++;m[dg].conf+=part.confidence||0;if(m[dg].n>bn||(m[dg].n===bn&&m[dg].conf>bc)){best=dg;bn=m[dg].n;bc=m[dg].conf}}if(!best)return null;code+=best;minVotes=Math.min(minVotes,bn);avg+=bc/Math.max(1,bn)}
+ if(code.length===8&&minVotes>=3)return {code:code,reason:'all 8 factory digit positions have a 3-of-4 majority'};return null
+}
+function drawFactoryPreview(label,number,region,grid,dst){
+ debugCanv(label,dst);var c=dst.getContext('2d'),nb=number._offset||[0,0],rr=region._region||[0,0,region.width,region.height],ox=nb[0]+rr[0],oy=nb[1]+rr[1];c.save();c.strokeStyle='rgba(255,0,255,.95)';c.lineWidth=Math.max(2,label.width/500);
+ for(var i=0;i<8;i++){var x=ox+grid.x0+i*grid.cw,y=oy,w=grid.cw,h=region.height;c.strokeRect(x,y,w,h)}c.restore()
+}
 // Find the bright/tan factory label on a dark tire using a low-resolution connected-component pass.
 function detectLabel(src){var max=520,sc=Math.min(1,max/src.width),sw=Math.max(1,Math.round(src.width*sc)),sh=Math.max(1,Math.round(src.height*sc)),sm=document.createElement('canvas');sm.width=sw;sm.height=sh;var cx=sm.getContext('2d',{willReadFrequently:true});cx.drawImage(src,0,0,sw,sh);var im=cx.getImageData(0,0,sw,sh),d=im.data,N=sw*sh,mask=new Uint8Array(N),sum=0;
  for(var i=0,p=0;i<d.length;i+=4,p++){var r=d[i],g=d[i+1],b=d[i+2],lum=.299*r+.587*g+.114*b;sum+=lum}
@@ -111,7 +154,7 @@ function detectLabel(src){var max=520,sc=Math.min(1,max/src.width),sw=Math.max(1
  var padX=(best.maxx-best.minx)*.08,padY=(best.maxy-best.miny)*.20,x=(best.minx-padX)/sc,y=(best.miny-padY)/sc,w=(best.maxx-best.minx+2*padX)/sc,h=(best.maxy-best.miny+2*padY)/sc;return cropCanvas(src,x,y,w,h)
 }
 
-function numberBand(label){return cropCanvas(label,label.width*.10,label.height*.46,label.width*.80,label.height*.50)}
+function numberBand(label){var x=label.width*.08,y=label.height*.43,w=label.width*.84,h=label.height*.54,c=cropCanvas(label,x,y,w,h);c._offset=[Math.round(x),Math.round(y)];return c}
 
 // Detect narrow vertical structural splits by looking for dark columns that continue into the
 // quiet bottom margin, where printed digits should not exist. Produce a second OCR image with
@@ -147,13 +190,16 @@ function fail(msg){resultEl.textContent='NO READ';reasonEl.textContent=msg;setSt
 function debugCanv(src,dst){dst.width=src.width;dst.height=src.height;dst.getContext('2d').drawImage(src,0,0)}
 
 async function analyzeFile(file){if(working)return;working=true;scanBtn.disabled=true;scanBtn.textContent='READING…';retakeBtn.style.display='none';resultEl.textContent='…';reasonEl.textContent='Analyzing high-resolution still photo.';setStatus('OPENING PHOTO','',8);var dbg=[];
- try{var im=await loadImage(file),full=canvasFromImage(im,2200);setStatus('FINDING FACTORY LABEL','',18);var label=detectLabel(full),num=numberBand(label),region=digitRegion(num),masked=crackMask(num,label),previewGrid=bestEightGrid(region,135);debugCanv(label,$('labelCanvas'));drawGridPreview(region,previewGrid,$('numberCanvas'));dbg.push('photo '+full.width+'x'+full.height,'label '+label.width+'x'+label.height,'digit region '+JSON.stringify(region._region||[]),'V13 preview grid '+JSON.stringify(previewGrid),'crack candidates '+JSON.stringify(masked._cracks||[])+' (debug only; NEVER erased)');
- setStatus('CHECKING BARCODE','',28);var bc1=await zxing(label),bc2=await quagga(label);dbg.push('barcode '+JSON.stringify([bc1,bc2]));
- setStatus('READING PRINTED DIGITS','',38);var variants=[['region gray',enhance(region,1.45,null,3.2),'region'],['region strong',enhance(region,2.0,null,3.2),'region'],['region bw120',enhance(region,1.15,120,3.2),'region'],['region bw145',enhance(region,1.15,145,3.2),'region']],ocrs=[];
- for(var i=0;i<variants.length;i++){setStatus('LINE OCR '+(i+1)+' / '+variants.length,'',40+Math.round(i/variants.length*18));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r)}
- var segReads=[];for(var st=0,ths=[118,132,146,160];st<ths.length;st++){segReads.push(await segmentedGridRead(region,'grid '+ths[st],ths[st]))}dbg.push('segmented '+JSON.stringify(segReads));
- var seg=segmentedConsensus(segReads);if(seg){for(var bi=0;bi<[bc1,bc2].length;bi++){var bb=[bc1,bc2][bi];if(bb&&bb.code===seg.code){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(seg.code,seg.reason+' + '+bb.engine);return}}var lineAgree=0;for(var oi=0;oi<ocrs.length;oi++)if(ocrs[oi].code===seg.code)lineAgree++;if(lineAgree>=1){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(seg.code,seg.reason+' + full-line OCR');return}if(seg.reason.indexOf('geometry-aligned')>=0){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(seg.code,seg.reason);return}}
- var chosen=choose([bc1,bc2],ocrs);dbg.push('ocr engine '+(ocrEngine||'not initialized'));if(ocrInitError)dbg.push('ocr init error '+ocrInitError);dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');if(chosen)accept(chosen.code,chosen.reason);else fail('No safe agreement. V13 refused the read rather than inventing a tire number.')
+ try{
+  var im=await loadImage(file),full=canvasFromImage(im,2200);setStatus('FINDING FACTORY LABEL','',18);var label=detectLabel(full),num=numberBand(label),region=digitRegion(num),masked=crackMask(num,label),previewGrid=factoryGrid(region,138);
+  drawFactoryPreview(label,num,region,previewGrid,$('labelCanvas'));debugCanv(region,$('numberCanvas'));
+  dbg.push('photo '+full.width+'x'+full.height,'label '+label.width+'x'+label.height,'digit region '+JSON.stringify(region._region||[]),'V14 factory grid '+JSON.stringify(previewGrid),'crack candidates '+JSON.stringify(masked._cracks||[])+' (debug only; NEVER erased)');
+  setStatus('CHECKING BARCODE','',28);var bc1=await zxing(label),bc2=await quagga(label);dbg.push('barcode '+JSON.stringify([bc1,bc2]));
+  setStatus('READING PRINTED DIGITS','',38);var variants=[['region gray',enhance(region,1.45,null,3.0),'region'],['region strong',enhance(region,2.0,null,3.0),'region'],['region bw125',enhance(region,1.15,125,3.0),'region'],['region bw150',enhance(region,1.15,150,3.0),'region']],ocrs=[];
+  for(var i=0;i<variants.length;i++){setStatus('LINE OCR '+(i+1)+' / '+variants.length,'',40+Math.round(i/variants.length*15));var r=await ocrOne(variants[i][1],variants[i][0],variants[i][2]);if(r)ocrs.push(r)}
+  var segReads=[];for(var st=0,ths=[118,132,146,160];st<ths.length;st++){segReads.push(await segmentedFactoryRead(region,'factory '+ths[st],ths[st]))}dbg.push('segmented '+JSON.stringify(segReads));
+  var seg=segmentedConsensus(segReads);if(seg){var lineAgree=0;for(var oi=0;oi<ocrs.length;oi++)if(ocrs[oi].code===seg.code)lineAgree++;for(var bi=0;bi<[bc1,bc2].length;bi++){var bb=[bc1,bc2][bi];if(bb&&bb.code===seg.code){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(seg.code,seg.reason+' + '+bb.engine);return}}if(lineAgree>=1){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(seg.code,seg.reason+' + full-line OCR');return}if(seg.reason.indexOf('3-of-4')>=0){dbg.push('ocr engine '+(ocrEngine||'initialized'),'ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');accept(seg.code,seg.reason);return}}
+  var chosen=choose([bc1,bc2],ocrs);dbg.push('ocr engine '+(ocrEngine||'not initialized'));if(ocrInitError)dbg.push('ocr init error '+ocrInitError);dbg.push('ocr '+JSON.stringify(ocrs));$('debugText').textContent=dbg.join('\n');if(chosen)accept(chosen.code,chosen.reason);else fail('No safe agreement. V14 refused the read rather than inventing a tire number.')
  }catch(e){$('debugText').textContent=dbg.join('\n')+'\nERROR '+(e&&e.message?e.message:e);fail('Reader error. Retake the photo. First use requires an internet connection so the OCR engine can load.')}
 }
 scanBtn.onclick=function(){if(!working){input.value='';input.click()}};retakeBtn.onclick=function(){input.value='';input.click()};input.onchange=function(){if(input.files&&input.files[0])analyzeFile(input.files[0])};
